@@ -1,0 +1,50 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/reza/MyRobotCodes/hapticEnvironment'
+ 
+mkdir -p obj/release/lin-x86_64-cc
+ 
+mkdir -p bin/lin-x86_64-cc
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/cCST.o src/combined/cCST.cpp
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/cCups.o src/combined/cCups.cpp
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/controller.o src/core/controller.cpp
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/cArrow.o src/graphics/cArrow.cpp
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/cGenericMovingObject.o src/graphics/cGenericMovingObject.cpp
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/cMovingDots.o src/graphics/cMovingDots.cpp
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/cPipe.o src/graphics/cPipe.cpp
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/graphics.o src/graphics/graphics.cpp
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/cBoundingPlane.o src/haptics/cBoundingPlane.cpp
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/cConstantForceFieldEffect.o src/haptics/cConstantForceFieldEffect.cpp
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/cConstrainToLine.o src/haptics/cConstrainToLine.cpp
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/cFreezeEffect.o src/haptics/cFreezeEffect.cpp
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/cPositionForceFieldEffect.o src/haptics/cPositionForceFieldEffect.cpp
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/cViscosityEffect.o src/haptics/cViscosityEffect.cpp
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/haptics.o src/haptics/haptics.cpp
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/listener.o src/network/listener.cpp
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/network.o src/network/network.cpp
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/streamer.o src/network/streamer.cpp
+ 
+clang++ -I./external/chai3d-3.2.0/src -fsigned-char -O3 -I./external/chai3d-3.2.0/external/Eigen -I./external/chai3d-3.2.0/external/glew/include -I./external/chai3d-3.2.0/external/DHD/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I./external/chai3d-3.2.0/extras/GLFW/include -I./common -I./external/rpclib/include -I./src  ./obj/release/lin-x86_64-cc/cCST.o  ./obj/release/lin-x86_64-cc/cCups.o  ./obj/release/lin-x86_64-cc/controller.o  ./obj/release/lin-x86_64-cc/cArrow.o  ./obj/release/lin-x86_64-cc/cGenericMovingObject.o  ./obj/release/lin-x86_64-cc/cMovingDots.o  ./obj/release/lin-x86_64-cc/cPipe.o  ./obj/release/lin-x86_64-cc/graphics.o  ./obj/release/lin-x86_64-cc/cBoundingPlane.o  ./obj/release/lin-x86_64-cc/cConstantForceFieldEffect.o  ./obj/release/lin-x86_64-cc/cConstrainToLine.o  ./obj/release/lin-x86_64-cc/cFreezeEffect.o  ./obj/release/lin-x86_64-cc/cPositionForceFieldEffect.o  ./obj/release/lin-x86_64-cc/cViscosityEffect.o  ./obj/release/lin-x86_64-cc/haptics.o  ./obj/release/lin-x86_64-cc/listener.o  ./obj/release/lin-x86_64-cc/network.o  ./obj/release/lin-x86_64-cc/streamer.o -L./external/chai3d-3.2.0/lib/release/lin-x86_64-cc -L./external/chai3d-3.2.0/external/DHD/lib/lin-x86_64 -L./external/chai3d-3.2.0/extras/GLFW/lib/release/lin-x86_64-cc -L./external/rpclib/build -lchai3d -ldrd -lpthread -lrt -ldl -lGL -lGLU -lusb-1.0 -lglfw -lX11 -lXcursor -lXrandr -lXinerama -lrpc   -o ./bin/lin-x86_64-cc/hapticEnvironment 
+ 
+clang++ -DLINUX -Wno-deprecated -std=c++17 -I./external/rpclib/include/ -I./common -I./messaging/MessageHandler -MD -MF ./obj/release/lin-x86_64-cc/d -c -o obj/release/lin-x86_64-cc/MessageHandler.o messaging/MessageHandler/MessageHandler.cpp
+ 
+clang++ -DLINUX -Wno-deprecated -std=c++17 -I./external/rpclib/include/ -I./common -I./messaging/MessageHandler  ./obj/release/lin-x86_64-cc/MessageHandler.o -L./external/rpclib/build -lrpc -lpthread -o ./bin/lin-x86_64-cc/messageHandler
+make: Leaving directory '/home/reza/MyRobotCodes/hapticEnvironment'
+ 

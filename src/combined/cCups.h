@@ -5,6 +5,7 @@
 #include "haptics/haptics.h"
 #include "graphics/graphics.h"
 #include "graphics/cGenericMovingObject.h"
+#include "haptics/cConstrainToLine.h"
 #include "math.h"
 
 using namespace chai3d;
@@ -24,8 +25,10 @@ class cCups: public cGenericMovingObject, public cGenericEffect
     double escapeTheta;
     double pendulumLength;
     double ballMass;
-    double cartMass;
+    double cupMass;
     double gravity;
+    double ballDamping;
+    double targetDistance;
     cWorld* world;
     cShapeSphere* ball;
     cShapeBox* start;
@@ -33,14 +36,17 @@ class cCups: public cGenericMovingObject, public cGenericEffect
     cMesh* cupMesh;
     cVector3d* startTarget;
     cVector3d* stopTarget;
-    double ballPos;
-    double ballVel;
+    cConstrainToLine* pathConstraint;
+    double ballAngle;
+    double ballVelocity;
     double ballForce;
-    double cartPos;
-    double cartVel;
-    double cartAcc;
+    double interactionForce;
+    double cupPos;
+    double cupVel;
+    double cupAcc;
     double lastUpdateTime;
     bool running;
+    bool ballInCup;
     cPrecisionClock* cupsClock;
 
   public:
@@ -50,7 +56,8 @@ class cCups: public cGenericMovingObject, public cGenericEffect
     void startCups();
     void stopCups();
     void destructCups();
+    void resetCups();
     void graphicsLoopFunction(double dt, cVector3d toolPos, cVector3d toolVel);
-    double computeBallAcceleration(double ballP);
-    void updateNextBallPosition(double dt);
+    double computeBallAcceleration(double theta, double omega);
+    void updateNextballAngle(double dt);
 };

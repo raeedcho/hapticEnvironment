@@ -26,6 +26,7 @@ struct GraphicsData {
   cWorld* world; // TODO: Move this to controller.cpp
   cCamera* camera;
   cDirectionalLight* light;
+  cDirectionalLight* light2;
   GLFWwindow* window;
   int width;
   int height;
@@ -36,6 +37,9 @@ struct GraphicsData {
   cFrequencyCounter freqCounterGraphics;
   clock_t graphicsClock;
   vector<cGenericMovingObject*> movingObjects;
+  cLabel* debuggerLable; //rsr. added for debugging
+  bool debuggerEnabled = true;
+  unordered_map<string, double> debuggerContent;
 };
 
 void initDisplay(void);
@@ -44,5 +48,6 @@ void errorCallback(int error, const char* errorDescription);
 void resizeWindowCallback(GLFWwindow* window, int w, int h);
 void keySelectCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void updateGraphics(void);
+void startGraphicsLoop(void); //rsr to make the main function prettier
 
 #endif

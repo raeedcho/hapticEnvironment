@@ -12,26 +12,35 @@
  */
 
 
-extern HapticData hapticsData;
+extern HapticData hapticsData; // rsr. extern tells the compiler it is defined in another module. Linker finds this variable points to it. It's like a global variable. HaptidData is defined in haptics.h
 extern GraphicsData graphicsData;
-ControlData controlData;
+ControlData controlData; // rsr. control data is defined in controller.h, included above
 
+
+/////////////////////////////////////////////////////
+////////// BEGINING OF THE MAIN PROGRAM /////////////
+/////////////////////////////////////////////////////
 int main(int argc, char* argv[])
 {
-  const char* MODULE_IP;
-  int MODULE_PORT;
-  const char* MH_IP;
-  int MH_PORT;
-
   cout << endl;
   cout << "-----------------------------------" << endl;
   cout << "CHAI3D" << endl;
   cout << "-----------------------------------" << endl << endl << endl;
   cout << "Keyboard Options:" << endl << endl;
   cout << "[f] - Enable/Disable full screen mode" << endl;
+  cout << "[d] - Enable/Disable debugging info" << endl;
   cout << "[q] - Exit application" << endl;
   cout << endl << endl;
   
+  atexit(close); //rsr. close() is the "exit" function that is called when the program ends.
+  
+  const char* MODULE_IP;
+  int MODULE_PORT;
+  const char* MH_IP;
+  int MH_PORT;
+
+
+  // rsr. controlData is a structure containing high-level information about the flow of the program
   controlData.simulationRunning = false;
   controlData.simulationFinished = true;
   controlData.hapticsUp = false;
@@ -59,52 +68,60 @@ int main(int argc, char* argv[])
     controlData.MH_IP = argv[3];
     controlData.MH_PORT = atoi(argv[4]);
   }
+
+  // rsr. this is a clinet for the RPC server (being the messageHandler app). The client sends function call requests to the server to run and waits for the return value
   controlData.client = new rpc::client(controlData.MH_IP, controlData.MH_PORT);
   //controlData.SENDER_IPS.push_back("127.0.0.1");
   //controlData.SENDER_IPS.push_back("127.0.0.1");
   //controlData.SENDER_PORTS.push_back(9000);
   //controlData.SENDER_PORTS.push_back(10000);
-  controlData.hapticsOnly = false;
   
-  if (controlData.hapticsOnly == false) {
-    initDisplay();
-    initScene();
-  }
 
-  initHaptics();
-  startHapticsThread(); 
-  atexit(close);
-  resizeWindowCallback(graphicsData.window, graphicsData.width, graphicsData.height);
-  sleep(2); 
-  openMessagingSocket();
-  int addSuccess = addMessageHandlerModule();
+  
+  controlData.hapticsOnly = false;
+  if (controlData.hapticsOnly == false) {
+    initDisplay(); //rsr. initializes glfw window. construct the global variable graphicsData. 
+    initScene(); //rsr. initializes the chai3d world, camera, light. puts them in graphicsData
+    // resizeWindowCallback(graphicsData.window, graphicsData.width, graphicsData.height); //rsr. didn't seem necessary
+  }
+  
+  initHaptics(); //rsr. initializes the haptic device. contructs the global variable hapticsData. 
+  startHapticsThread(); //rsr. creates a new thread to run the haptics loop. simulation starts here
+  usleep(2e5);
+
+  openMessagingSocket(); //rsr. from network.h. The socker is used to listen to incomming UDP messages sent by messageHandler. The listenerThread listens to incoming messages
+  int addSuccess = addMessageHandlerModule(); //rsr. adds this program as module#1 to the messageHandler
   if (addSuccess == 0) {
     cout << "Module addition failed" << endl;
     close();
     exit(1);
   }
-  sleep(1);
-  int subscribeSuccess = subscribeToTrialControl();
+  usleep(1e5);
+  int subscribeSuccess = subscribeToTrialControl(); //rsr. subscribing to the "trialController", so that the messages requested by trialController are sent to module#1's socket
   if (subscribeSuccess == 0) {
     cout << "Subcribe to Trial Control failed" << endl;
     close();
     exit(1);
   }
-  sleep(2);
-  startStreamer(); 
-  startListener();
-  cout << "streamer and listener started" << endl;
-  
-  while (!glfwWindowShouldClose(graphicsData.window)) {
-    glfwGetWindowSize(graphicsData.window, &graphicsData.width, &graphicsData.height);
-    graphicsData.graphicsClock = clock();
-    updateGraphics();
-    glfwSwapBuffers(graphicsData.window);
-    glfwPollEvents();
-    graphicsData.freqCounterGraphics.signal(1);
+
+  //rsr added to subscribe to my own message requests
+  bool subscribed = false;
+  while (subscribed == false) {
+    auto subscribe = controlData.client->async_call("subscribeTo", controlData.MODULE_NUM, controlData.MODULE_NUM);
+    subscribe.wait();
+    if (subscribe.get().as<int>() == 1) {
+      subscribed = true;
+      cout << "subscribed to self" << endl;
+    }
   }
-  glfwDestroyWindow(graphicsData.window);
-  glfwTerminate();
+      
+  usleep(1e5);
+  startStreamerThread(); // rsr. starts a new thread to read pos/force/etc from the robot. for the streamer pointed by controlData.streamerThread
+  startListenerThread(); // rsr. starts a new thread to listen to messageHandler?! there is a difference between streamer and listener. 
+  cout << "streamer and listener started" << endl;
+
+  startGraphicsLoop(); //rsr. starts the main thread: a loop that updates graphics. code stucks here until the end of program
+
   return(0);
 }
 
@@ -124,7 +141,7 @@ bool allThreadsDown()
  */
 void close()
 {
-  controlData.simulationRunning = false;
+  controlData.simulationRunning = false; //rsr. this stops haptic/listener/streamer loops. they all depend on this
   while (!controlData.simulationFinished) {
     controlData.simulationFinished = allThreadsDown();
     cSleepMs(100);
@@ -139,6 +156,9 @@ void close()
   cout << "Deleted handler" << endl;
   closeMessagingSocket();
   graphicsData.world->deleteAllChildren();
+  
+  glfwDestroyWindow(graphicsData.window); // rsr. moved from main function to here
+  glfwTerminate();
 
 }
 
@@ -154,6 +174,7 @@ void parsePacket(char* packet)
   int msgType = header.msg_type;
   switch (msgType)
   {
+    /////////////////////// GENERAL MESSEGES /////////////
     case SESSION_START:
     {
       cout << "Received SESSION_START Message" << endl;
@@ -236,6 +257,8 @@ void parsePacket(char* packet)
       break;
     }
 
+
+    /////////////////////// CST MESSEGES /////////////
     case CST_CREATE:
     {
       cout << "Received CST_CREATE Message" << endl;
@@ -265,6 +288,7 @@ void parsePacket(char* packet)
         remove(graphicsData.movingObjects.begin(), graphicsData.movingObjects.end(), cst);
         controlData.worldEffects.erase(cstObj.cstName);
         bool removedCST = graphicsData.world->removeEffect(cst);
+        //rsr. why isn't cst removed from objectMap? it still stays there...
       }
       break;
     }
@@ -274,7 +298,7 @@ void parsePacket(char* packet)
       M_CST_START cstObj;
       memcpy(&cstObj, packet, sizeof(cstObj));
       cCST* cst = dynamic_cast<cCST*>(controlData.objectMap[cstObj.cstName]);
-      hapticsData.tool->setShowEnabled(false);
+      hapticsData.tool->setShowEnabled(false); //rsr. tool disapears. cst visual is visible
       cst->startCST();
       break;
     }
@@ -285,7 +309,7 @@ void parsePacket(char* packet)
       memcpy(&cstObj, packet, sizeof(cstObj));
       cCST* cst = dynamic_cast<cCST*>(controlData.objectMap[cstObj.cstName]);
       cst->stopCST();
-      hapticsData.tool->setShowEnabled(true);
+      hapticsData.tool->setShowEnabled(true); //rsr. tool is visible again
       break;
     }
     case CST_SET_VISUAL:
@@ -318,6 +342,10 @@ void parsePacket(char* packet)
       cst->setLambda(lambda);
       break;
     }
+
+
+
+    /////////////////////// CUP TASK MESSEGES /////////////
     case CUPS_CREATE:
     {
       cout << "Received CUPS_CREATE Message" << endl;
@@ -370,6 +398,18 @@ void parsePacket(char* packet)
       hapticsData.tool->setShowEnabled(true);
       break;
     }
+
+    case CUPS_RESET:
+    {
+      cout << "Received CUPS_RESET Message" << endl;
+      M_CUPS_RESET cupsObj;
+      memcpy(&cupsObj, packet, sizeof(cupsObj));
+      cCups* cups = dynamic_cast<cCups*>(controlData.objectMap[cupsObj.cupsName]);
+      cups->resetCups();
+      break;
+    }
+
+    // OTHER GENERAL MESSAGES
     case HAPTICS_SET_ENABLED:
     {
       cout << "Received HAPTICS_SET_ENABLED Message" << endl;

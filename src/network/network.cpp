@@ -28,6 +28,7 @@ int msgLen = sizeof(msgStruct);
  */
 int addMessageHandlerModule()
 {
+  cout << "Addiding robot controller as module #1 to messageHandler" << endl;
   auto addMod = controlData.client->call("addModule", controlData.MODULE_NUM, controlData.IPADDR, controlData.PORT);
   return addMod.as<int>();
 }
@@ -38,6 +39,7 @@ int addMessageHandlerModule()
  */
 int subscribeToTrialControl() 
 {
+  cout << "Subscribing to messages sent by trial controller" << endl;
   bool subscribed = false;
   clock_t begin = clock();
   while (subscribed == false) {
@@ -53,7 +55,7 @@ int subscribeToTrialControl()
       cout << "Error subscribing to Trial Control, exiting." << endl;
       return 0;
     }
-    sleep(5); // 1000 microseconds = 1 millisecond
+    usleep(1e5); // 1000 microseconds = 1 millisecond
   }
   return 1;
 }
@@ -90,6 +92,7 @@ int openMessagingSocket()
     cout << "Error binding messaging socket" << endl;
     exit(1);
   }
+  cout << "Messaging socket opened successfully" << endl;
   return 1; 
 }
 
@@ -116,6 +119,7 @@ int readPacket(char* packetPointer)
   }
   return bytesRead;
 }
+
 
 /**
  * Close all messaging sockets

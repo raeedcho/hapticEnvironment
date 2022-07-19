@@ -22,13 +22,15 @@ extern ControlData controlData;
  */
 void initHaptics(void)
 {
+  cout << "Initializing the haptic device" << endl;
+
   hapticsData.handler = new cHapticDeviceHandler();
   hapticsData.handler->getDevice(hapticsData.hapticDevice, 0);
   hapticsData.hapticDeviceInfo = hapticsData.hapticDevice->getSpecifications();
  
   bool open_success = hapticsData.hapticDevice->open();
   cout << "Opened Device " << open_success << endl;
-  bool calibrate_success = hapticsData.hapticDevice->calibrate(true);
+  bool calibrate_success = hapticsData.hapticDevice->calibrate();
   cout << "Calibrate succeeded " << calibrate_success << endl;
 
   double workspaceScaleFactor;
@@ -39,13 +41,16 @@ void initHaptics(void)
     cout << "Falcon Detected." << endl;
   }
   else if (hapticsData.hapticDeviceInfo.m_model == C_HAPTIC_DEVICE_DELTA_3) {
-    workspaceScaleFactor = 1000;
-    forceScaleFactor = 1000;
+    // workspaceScaleFactor = 1000;
+    // forceScaleFactor = 1000;
+    workspaceScaleFactor = 1; //rsr. changed it to 1 to make everything in the same unit
+    forceScaleFactor = 1; 
+    
     cout << "Delta Detected." << endl;
 
   }
   else {
-    workspaceScaleFactor = 1000;
+    workspaceScaleFactor = 1000; 
     forceScaleFactor = 1000;
     //hapticsData.hapticDevice->close();
     cout << "Device not recognized." << endl;
@@ -55,18 +60,18 @@ void initHaptics(void)
   hapticsData.tool->m_hapticPoint->m_sphereProxy->m_material->setRed();
   graphicsData.world->addChild(hapticsData.tool);
   hapticsData.tool->setHapticDevice(hapticsData.hapticDevice);
-  hapticsData.tool->setRadius(HAPTIC_TOOL_RADIUS);
-  hapticsData.tool->setWorkspaceScaleFactor(workspaceScaleFactor);
+  hapticsData.tool->setRadius(HAPTIC_TOOL_RADIUS); 
+  hapticsData.tool->setWorkspaceScaleFactor(workspaceScaleFactor); 
   hapticsData.tool->setWaitForSmallForce(false);
-  if (hapticsData.hapticDeviceInfo.m_model == C_HAPTIC_DEVICE_DELTA_3) {
-    cMatrix3d rotate = cMatrix3d();
-    rotate.set(0, 1, 0, 1, 0, 0, 0, 0, 1);
-    hapticsData.tool->setDeviceGlobalRot(rotate);
-  }
+  // if (hapticsData.hapticDeviceInfo.m_model == C_HAPTIC_DEVICE_DELTA_3) { // rsr. I don't get this
+  //   cMatrix3d rotate = cMatrix3d();
+  //   rotate.set(0, 1, 0, 1, 0, 0, 0, 0, 1); 
+  //   hapticsData.tool->setDeviceGlobalRot(rotate);
+  // }
   hapticsData.tool->start();
   
   hapticsData.maxForce = hapticsData.hapticDeviceInfo.m_maxLinearForce;
-  cout << "Haptics tool initialized" << endl;
+  cout << "Initialized haptic device" << endl;
 }
 
 /**
@@ -76,6 +81,7 @@ void initHaptics(void)
  */
 void startHapticsThread(void)
 {
+  cout << "starting haptic thread" << endl;
   hapticsData.hapticsThread = new cThread();
   hapticsData.hapticsThread->start(updateHaptics, CTHREAD_PRIORITY_HAPTICS);
   controlData.simulationRunning = true;
@@ -92,21 +98,28 @@ void startHapticsThread(void)
  */
 void updateHaptics(void)
 {
-  cPrecisionClock clock;
-  clock.reset();
-  cVector3d angVel(0.0, 0.0, 0.1);
+  // rsr. all these commented lines seemed unnecessary
+  // cPrecisionClock clock;
+  // clock.reset();
+  // cVector3d angVel(0.0, 0.0, 0.1);
   usleep(500); // give some time for other threads to start up
   while (controlData.simulationRunning){
-    clock.stop();
-    double timeInterval = clock.getCurrentTimeSeconds();
-    clock.reset();
-    clock.start();
-    graphicsData.world->computeGlobalPositions(true);
-    cVector3d pos = hapticsData.tool->getDeviceLocalPos();
-    //cout << pos.x() << ", " << pos.y() << ", " << pos.z() << endl;
+    // clock.stop();
+    // double timeInterval = clock.getCurrentTimeSeconds();
+    // clock.reset();
+    // clock.start();
+    // graphicsData.world->computeGlobalPositions(true);
+    // cVector3d pos = hapticsData.tool->getDeviceLocalPos();
+    // cout << pos.x() << ", " << pos.y() << ", " << pos.z() << endl;
     hapticsData.tool->updateFromDevice();
     hapticsData.tool->computeInteractionForces();
     hapticsData.tool->applyToDevice();
+
+    cVector3d force = hapticsData.tool->getDeviceLocalForce();
+    graphicsData.debuggerContent["F_y"] = force.y();
+    
+    hapticsData.freqCounterHaptics.signal(1);
+    graphicsData.debuggerContent["hapticHz"] = hapticsData.freqCounterHaptics.getFrequency();
   }
   controlData.hapticsUp = false;
 }

@@ -1,0 +1,899 @@
+make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+# GNU Make 4.3
+# Built for x86_64-pc-linux-gnu
+# Copyright (C) 1988-2020 Free Software Foundation, Inc.
+# License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+# This is free software: you are free to change and redistribute it.
+# There is NO WARRANTY, to the extent permitted by law.
+
+# Make data base, printed on Fri Jul  1 09:54:56 2022
+
+# Variables
+
+# environment
+G_ENABLE_DIAGNOSTIC = 0
+# environment
+GDK_BACKEND = x11
+# makefile (from 'external/chai3d-3.2.0/Makefile.common', line 77)
+ARFLAGS = rs
+# makefile (from 'Makefile', line 65)
+OUTPUT = $(BASE_DIR)/$(PROG)
+# environment
+LC_ALL = C
+# environment
+GNOME_SHELL_SESSION_MODE = ubuntu
+# makefile (from 'external/chai3d-3.2.0/Makefile.common', line 54)
+SYSTEM = $(shell echo `uname -s`)
+# makefile (from 'external/chai3d-3.2.0/Makefile.common', line 116)
+DHD_LIB = $(DHD_EXT)/lib/$(OS)-$(ARCH)
+# makefile (from 'external/chai3d-3.2.0/Makefile.config', line 47)
+USE_EXTERNAL_GIFLIB = no
+# makefile (from 'Makefile', line 70)
+MSG_OBJ = ./obj/$(CFG)/$(OS)-$(ARCH)-$(COMPILER)
+# environment
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1001/vscode-ipc-1363db35-a397-48b1-b416-dc6f76f69504.sock
+# makefile (from 'Makefile', line 73)
+MSG_INCLUDES = $(wildcard $(MSG_DIR)/*.h)
+# makefile (from 'Makefile', line 58)
+SRC_DIR = ./src
+# environment
+VSCODE_CWD = /home/reza/MyRobotCodes/hapticEnvironment
+# environment
+WINDOWPATH = 2
+# default
+MAKE_COMMAND := make
+# environment
+QT_ACCESSIBILITY = 1
+# makefile (from 'external/chai3d-3.2.0/Makefile.config', line 49)
+USE_EXTERNAL_PUGIXML = no
+# automatic
+@D = $(patsubst %/,%,$(dir $@))
+# makefile (from 'Makefile', line 60)
+OBJ_DIR = ./obj/$(CFG)/$(OS)-$(ARCH)-$(COMPILER)
+# environment
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# default
+.VARIABLES := 
+# environment
+PWD = /home/reza/MyRobotCodes/hapticEnvironment
+# automatic
+%D = $(patsubst %/,%,$(dir $%))
+# makefile (from 'external/chai3d-3.2.0/Makefile.common.lin', line 68)
+GLFW_DIR = $(TOP_DIR)/extras/GLFW
+# environment
+XDG_DATA_DIRS = /usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop
+# automatic
+^D = $(patsubst %/,%,$(dir $^))
+# environment
+VSCODE_LOG_STACK = false
+# automatic
+%F = $(notdir $%)
+# environment
+VSCODE_CODE_CACHE_PATH = /home/reza/.config/Code/CachedData/30d9c6cd9483b2cc586687151bcbcd635f373630
+# makefile (from 'external/chai3d-3.2.0/Makefile.common', line 115)
+DHD_EXT = $(TOP_DIR)/external/DHD
+# environment
+LANG = C
+# makefile (from 'Makefile', line 43)
+BASE_DIR = ./bin/$(OS)-$(ARCH)-$(COMPILER)
+# environment
+XAUTHORITY = /run/user/1001/gdm/Xauthority
+# default
+.LOADED := 
+# default
+.INCLUDE_DIRS = /usr/local/include /usr/include /usr/include
+# makefile (from 'external/chai3d-3.2.0/Makefile.config', line 48)
+USE_EXTERNAL_LIB3DS = no
+# environment
+GNOME_TERMINAL_SERVICE = :1.2466
+# makefile
+MAKEFLAGS = pqrR
+# makefile (from 'Makefile', line 71)
+MSG_PROG = messageHandler
+# makefile
+CURDIR := /home/reza/MyRobotCodes/hapticEnvironment
+# environment
+VSCODE_PIPE_LOGGING = true
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+# environment
+LESSOPEN = | /usr/bin/lesspipe %s
+# makefile (from 'external/chai3d-3.2.0/Makefile.config', line 50)
+USE_EXTERNAL_OPENAL = no
+# automatic
+*D = $(patsubst %/,%,$(dir $*))
+# environment
+MFLAGS = -pqrR
+# environment
+SSH_AUTH_SOCK = /run/user/1001/keyring/ssh
+# default
+.SHELLFLAGS := -c
+# environment
+XDG_CONFIG_DIRS = /etc/xdg/xdg-ubuntu:/etc/xdg
+ 
+# automatic
++D = $(patsubst %/,%,$(dir $+))
+# environment
+XDG_SESSION_DESKTOP = ubuntu
+# makefile (from 'external/chai3d-3.2.0/Makefile.common.lin', line 1)
+MAKEFILE_LIST := Makefile external/chai3d-3.2.0/Makefile.common external/chai3d-3.2.0/Makefile.config external/chai3d-3.2.0/Makefile.common.lin
+# makefile (from 'Makefile', line 45)
+RPCLIB_DIR = ./external/rpclib
+# automatic
+@F = $(notdir $@)
+# environment
+VSCODE_VERBOSE_LOGGING = true
+# environment
+VSCODE_PID = 411020
+# environment
+XDG_SESSION_TYPE = x11
+# automatic
+?D = $(patsubst %/,%,$(dir $?))
+# makefile (from 'Makefile', line 63)
+INCLUDES = $(wildcard $(HDR_DIR)/*/*.h)
+# environment
+SESSION_MANAGER = local/actionlab-OptiPlex-3020:@/tmp/.ICE-unix/3077,unix/actionlab-OptiPlex-3020:/tmp/.ICE-unix/3077
+# automatic
+*F = $(notdir $*)
+# makefile (from 'external/chai3d-3.2.0/Makefile.common.lin', line 72)
+LDLIBS_GLUT = -lGL -lGLU -lglut
+# environment
+CHROME_DESKTOP = code-url-handler.desktop
+# environment
+DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1001/bus
+# automatic
+<D = $(patsubst %/,%,$(dir $<))
+# environment
+VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupport":true}
+# default
+MAKE_HOST := x86_64-pc-linux-gnu
+# makefile (from 'external/chai3d-3.2.0/Makefile.common.lin', line 44)
+COMPILER = $(CC)
+# environment
+GNOME_DESKTOP_SESSION_ID = this-is-deprecated
+# makefile
+SHELL = /bin/sh
+# default
+MAKECMDGOALS := all
+# environment
+XMODIFIERS = @im=ibus
+# makefile (from 'external/chai3d-3.2.0/Makefile.config', line 51)
+USE_EXTERNAL_THEORAPLAYER = no
+# environment
+SHLVL = 1
+# makefile (from 'external/chai3d-3.2.0/Makefile.common', line 50)
+LIB_NAME = chai3d
+# environment
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/9876cfb7_284b_45d8_8bd3_536f3ee7b05d
+# environment
+MAKELEVEL := 0
+# default
+MAKE = $(MAKE_COMMAND)
+# environment
+PATH = /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+# default
+MAKEFILES := 
+# automatic
+^F = $(notdir $^)
+# makefile (from 'Makefile', line 50)
+LDLIBS = -l$(LIB_NAME) -ldrd -lpthread -lrt -ldl -lGL -lGLU -lusb-1.0 $(LDLIBS_GLFW) -lrpc  
+# makefile (from 'Makefile', line 69)
+MSG_HDR = ./messaging/MessageHandler
+# environment
+INVOCATION_ID = d5c72ef90fe14cb6b354ce942913e619
+# environment
+VSCODE_LOG_NATIVE = false
+# environment
+USERNAME = reza
+# environment
+LESSCLOSE = /usr/bin/lesspipe %s %s
+# automatic
+?F = $(notdir $?)
+# makefile (from 'Makefile', line 59)
+HDR_DIR = ./src
+# environment
+XDG_CURRENT_DESKTOP = Unity
+# makefile (from 'Makefile', line 61)
+PROG = $(notdir $(shell pwd)) 
+# environment
+LS_COLORS = rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:
+# automatic
++F = $(notdir $+)
+# environment
+DESKTOP_SESSION = ubuntu
+# environment
+ORIGINAL_XDG_CURRENT_DESKTOP = ubuntu:GNOME
+# makefile (from 'Makefile', line 64)
+OBJECTS = $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(notdir $(SOURCES)))
+# 'override' directive
+GNUMAKEFLAGS := 
+# makefile (from 'Makefile', line 76)
+MSG_FLAGS = -DLINUX -Wno-deprecated -std=c++17 -I$(RPCLIB_DIR)/include/ -I./common
+# makefile (from 'external/chai3d-3.2.0/Makefile.common', line 56)
+OS = lin
+# environment
+LOGNAME = reza
+# makefile (from 'external/chai3d-3.2.0/Makefile.common', line 80)
+LIB_TARGET = $(LIB_DIR)/lib$(LIB_NAME).a
+# makefile
+.DEFAULT_GOAL := all
+# makefile (from 'external/chai3d-3.2.0/Makefile.common', line 53)
+ARCH = $(shell echo `uname -m`)
+# environment
+DISPLAY = :0
+# environment
+USER = reza
+# environment
+GTK_MODULES = gail:atk-bridge
+# makefile (from 'Makefile', line 77)
+MSG_LDFLAGS = -L$(RPCLIB_DIR)/build -lrpc -lpthread
+# default
+MAKE_VERSION := 4.3
+# makefile (from 'external/chai3d-3.2.0/Makefile.common', line 111)
+GLEW_DIR = $(TOP_DIR)/external/glew
+# 'override' directive
+.SHELLSTATUS := 0
+# makefile (from 'Makefile', line 49)
+LDFLAGS = -L$(LIB_DIR) -L$(DHD_LIB) -L$(GLFW_DIR)/lib/$(CFG)/$(OS)-$(ARCH)-$(COMPILER) -L$(RPCLIB_DIR)/build
+# environment
+MANAGERPID = 2816
+# environment
+SSH_AGENT_PID = 2991
+# environment
+_ = /usr/bin/code
+# environment
+XDG_RUNTIME_DIR = /run/user/1001
+# makefile (from 'external/chai3d-3.2.0/Makefile.common.lin', line 52)
+CFLAGS = -DLINUX -Wno-deprecated -m64
+# makefile (from 'Makefile', line 93)
+D_FILES = $(OBJECTS:.o=.d)
+# environment
+GPG_AGENT_INFO = /run/user/1001/gnupg/S.gpg-agent:0:1
+# makefile (from 'external/chai3d-3.2.0/Makefile.config', line 45)
+USE_EXTERNAL_LIBPNG = no
+# environment
+COLORTERM = truecolor
+# makefile (from 'external/chai3d-3.2.0/Makefile.common', line 107)
+EIGEN = $(TOP_DIR)/external/Eigen
+# environment
+JOURNAL_STREAM = 8:2656233
+# makefile (from 'external/chai3d-3.2.0/Makefile.config', line 46)
+USE_EXTERNAL_LIBJPEG = no
+# environment
+XDG_SESSION_CLASS = user
+# environment
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
+# environment
+HOME = /home/reza
+# environment
+QT_IM_MODULE = ibus
+# makefile (from 'Makefile', line 72)
+MSG_SOURCES = $(wildcard $(MSG_DIR)/*.cpp)
+# makefile (from 'Makefile', line 68)
+MSG_DIR = ./messaging/MessageHandler
+# makefile (from 'external/chai3d-3.2.0/Makefile.common', line 46)
+CFG = release
+# makefile (from 'external/chai3d-3.2.0/Makefile.common', line 63)
+BIN_DIR = $(TOP_DIR)/bin/$(OS)-$(ARCH)
+# environment
+ELECTRON_RUN_AS_NODE = 1
+# environment
+VSCODE_IPC_HOOK = /run/user/1001/vscode-21608f73-1.68.1-main.sock
+# environment
+TERM = xterm-256color
+# makefile (from 'Makefile', line 74)
+MSG_OBJECTS = $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(notdir $(MSG_SOURCES)))
+# environment
+IM_CONFIG_PHASE = 1
+# default
+.RECIPEPREFIX := 
+# automatic
+<F = $(notdir $<)
+# makefile (from 'external/chai3d-3.2.0/Makefile.common.lin', line 69)
+LDLIBS_GLFW = -lglfw -lX11 -lXcursor -lXrandr -lXinerama
+# default
+SUFFIXES := 
+# environment
+VSCODE_CLI = 1
+# environment
+ELECTRON_NO_ATTACH_CONSOLE = 1
+# environment
+VTE_VERSION = 6200
+# makefile (from 'external/chai3d-3.2.0/Makefile.common', line 64)
+LIB_DIR = $(TOP_DIR)/lib/$(CFG)/$(OS)-$(ARCH)-$(COMPILER)
+# makefile (from 'Makefile', line 42)
+TOP_DIR = ./external/chai3d-3.2.0
+# makefile (from 'Makefile', line 48)
+CXXFLAGS = -I$(TOP_DIR)/src -fsigned-char -O3 -I$(EIGEN) -I$(GLEW_DIR)/include -I$(DHD_EXT)/include -DLINUX -Wno-deprecated -std=c++17 -m64 -I$(GLFW_DIR)/include -I./common -I$(RPCLIB_DIR)/include
+# default
+.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink load
+# makefile (from 'Makefile', line 40)
+CXX = clang++
+# makefile (from 'external/chai3d-3.2.0/Makefile.common.lin', line 42)
+CC = gcc
+# makefile (from 'Makefile', line 75)
+MSG_OUTPUT = $(BASE_DIR)/$(MSG_PROG)
+# makefile (from 'Makefile', line 62)
+SOURCES = $(wildcard $(SRC_DIR)/*/*.cpp)
+# environment
+XDG_MENU_PREFIX = gnome-
+# environment
+GDMSESSION = ubuntu
+# variable set hash-table stats:
+# Load=154/1024=15%, Rehash=0, Collisions=44/505=9%
+
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+# ./src/combined (device 2051, inode 2755106): 7 files, no impossibilities.
+# src/*: could not be stat'd.
+# ./src/core (device 2051, inode 2755112): 4 files, no impossibilities.
+# messaging/MessageHandler (device 2051, inode 2755102): 4 files, no impossibilities.
+# src (device 2051, inode 2755105): 8 files, no impossibilities.
+# . (device 2051, inode 2755010): 19 files, no impossibilities.
+# ./messaging/MessageHandler (device 2051, inode 2755102): 4 files, no impossibilities.
+# ./src/haptics (device 2051, inode 2884008): 16 files, no impossibilities.
+# ./src/rpc (device 2051, inode 2755115): 21 files, no impossibilities.
+# ./src/network (device 2051, inode 2884023): 8 files, no impossibilities.
+# ./src/graphics (device 2051, inode 2883997): 12 files, no impossibilities.
+# ./src (device 2051, inode 2755105): 8 files, no impossibilities.
+
+# 111 files, no impossibilities in 12 directories.
+
+# Implicit Rules
+
+obj/release/lin-x86_64-gcc/%.o: src/*/%.cpp | obj/release/lin-x86_64-gcc
+#  recipe to execute (from 'Makefile', line 110):
+	$(CXX) $(CXXFLAGS) -I$(HDR_DIR) -MD -MF $(OBJ_DIR)/$.d -c -o $@ $<
+
+obj/release/lin-x86_64-gcc/%.o: messaging/MessageHandler/%.cpp | obj/release/lin-x86_64-gcc
+#  recipe to execute (from 'Makefile', line 119):
+	$(CXX) $(MSG_FLAGS) -I$(MSG_HDR) -MD -MF $(MSG_OBJ)/$.d -c -o $@ $<
+
+# 2 implicit rules, 0 (0.0%) terminal.
+# Files
+
+# Not a target:
+obj/release/lin-x86_64-gcc/network.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+# Not a target:
+src/rpc/dispatcher.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj/release/lin-x86_64-gcc/cBoundingPlane.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+# Not a target:
+src/combined/cCST.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj/release/lin-x86_64-gcc/cCST.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+ 
+#  Failed to be updated.
+
+# Not a target:
+external/chai3d-3.2.0/Makefile.common.lin:
+#  Implicit rule search has been done.
+#  Last modified 2021-02-08 14:46:52
+#  File has been updated.
+#  Successfully updated.
+
+obj/release/lin-x86_64-gcc/cConstrainToLine.o: src/combined/cCST.h src/combined/cCups.h src/combined/combined.h src/core/controller.h src/graphics/cArrow.h src/graphics/cGenericMovingObject.h src/graphics/cMovingDots.h src/graphics/cPipe.h src/graphics/graphics.h src/haptics/cBoundingPlane.h src/haptics/cConstantForceFieldEffect.h src/haptics/cConstrainToLine.h src/haptics/cFreezeEffect.h src/haptics/cPositionForceFieldEffect.h src/haptics/cViscosityEffect.h src/haptics/haptics.h src/network/listener.h src/network/network.h src/network/streamer.h src/rpc/client.h src/rpc/compatibility.h src/rpc/config.h src/rpc/dispatcher.h src/rpc/rpc_error.h src/rpc/server.h src/rpc/this_handler.h src/rpc/this_server.h src/rpc/this_session.h src/rpc/version.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+bin/lin-x86_64-gcc/hapticEnvironment: obj/release/lin-x86_64-gcc bin/lin-x86_64-gcc external/chai3d-3.2.0/lib/release/lin-x86_64-gcc/libchai3d.a obj/release/lin-x86_64-gcc/cCST.o obj/release/lin-x86_64-gcc/cCups.o obj/release/lin-x86_64-gcc/controller.o obj/release/lin-x86_64-gcc/cArrow.o obj/release/lin-x86_64-gcc/cGenericMovingObject.o obj/release/lin-x86_64-gcc/cMovingDots.o obj/release/lin-x86_64-gcc/cPipe.o obj/release/lin-x86_64-gcc/graphics.o obj/release/lin-x86_64-gcc/cBoundingPlane.o obj/release/lin-x86_64-gcc/cConstantForceFieldEffect.o obj/release/lin-x86_64-gcc/cConstrainToLine.o obj/release/lin-x86_64-gcc/cFreezeEffect.o obj/release/lin-x86_64-gcc/cPositionForceFieldEffect.o obj/release/lin-x86_64-gcc/cViscosityEffect.o obj/release/lin-x86_64-gcc/haptics.o obj/release/lin-x86_64-gcc/listener.o obj/release/lin-x86_64-gcc/network.o obj/release/lin-x86_64-gcc/streamer.o
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has been updated.
+#  Needs to be updated (-q is set).
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/3=0%
+#  recipe to execute (from 'Makefile', line 100):
+	$(CXX) $(CXXFLAGS) -I$(HDR_DIR) $(OBJECTS) $(LDFLAGS) $(LDLIBS) -o $(OUTPUT)
+	$(DEPLOY)
+
+obj/release/lin-x86_64-gcc/cGenericMovingObject.o: src/combined/cCST.h src/combined/cCups.h src/combined/combined.h src/core/controller.h src/graphics/cArrow.h src/graphics/cGenericMovingObject.h src/graphics/cMovingDots.h src/graphics/cPipe.h src/graphics/graphics.h src/haptics/cBoundingPlane.h src/haptics/cConstantForceFieldEffect.h src/haptics/cConstrainToLine.h src/haptics/cFreezeEffect.h src/haptics/cPositionForceFieldEffect.h src/haptics/cViscosityEffect.h src/haptics/haptics.h src/network/listener.h src/network/network.h src/network/streamer.h src/rpc/client.h src/rpc/compatibility.h src/rpc/config.h src/rpc/dispatcher.h src/rpc/rpc_error.h src/rpc/server.h src/rpc/this_handler.h src/rpc/this_server.h src/rpc/this_session.h src/rpc/version.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/graphics/cMovingDots.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj/release/lin-x86_64-gcc/cMovingDots.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+# Not a target:
+src/rpc/version.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj/release/lin-x86_64-gcc/graphics.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+# Not a target:
+src/haptics/cConstrainToLine.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/rpc/server.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+obj/release/lin-x86_64-gcc/graphics.o: src/combined/cCST.h src/combined/cCups.h src/combined/combined.h src/core/controller.h src/graphics/cArrow.h src/graphics/cGenericMovingObject.h src/graphics/cMovingDots.h src/graphics/cPipe.h src/graphics/graphics.h src/haptics/cBoundingPlane.h src/haptics/cConstantForceFieldEffect.h src/haptics/cConstrainToLine.h src/haptics/cFreezeEffect.h src/haptics/cPositionForceFieldEffect.h src/haptics/cViscosityEffect.h src/haptics/haptics.h src/network/listener.h src/network/network.h src/network/streamer.h src/rpc/client.h src/rpc/compatibility.h src/rpc/config.h src/rpc/dispatcher.h src/rpc/rpc_error.h src/rpc/server.h src/rpc/this_handler.h src/rpc/this_server.h src/rpc/this_session.h src/rpc/version.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+Makefile:
+#  Implicit rule search has been done.
+#  Last modified 2021-02-08 14:46:52
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+src/rpc/this_server.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+obj/release/lin-x86_64-gcc/cViscosityEffect.o: src/combined/cCST.h src/combined/cCups.h src/combined/combined.h src/core/controller.h src/graphics/cArrow.h src/graphics/cGenericMovingObject.h src/graphics/cMovingDots.h src/graphics/cPipe.h src/graphics/graphics.h src/haptics/cBoundingPlane.h src/haptics/cConstantForceFieldEffect.h src/haptics/cConstrainToLine.h src/haptics/cFreezeEffect.h src/haptics/cPositionForceFieldEffect.h src/haptics/cViscosityEffect.h src/haptics/haptics.h src/network/listener.h src/network/network.h src/network/streamer.h src/rpc/client.h src/rpc/compatibility.h src/rpc/config.h src/rpc/dispatcher.h src/rpc/rpc_error.h src/rpc/server.h src/rpc/this_handler.h src/rpc/this_server.h src/rpc/this_session.h src/rpc/version.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+obj/release/lin-x86_64-gcc/streamer.o: src/combined/cCST.h src/combined/cCups.h src/combined/combined.h src/core/controller.h src/graphics/cArrow.h src/graphics/cGenericMovingObject.h src/graphics/cMovingDots.h src/graphics/cPipe.h src/graphics/graphics.h src/haptics/cBoundingPlane.h src/haptics/cConstantForceFieldEffect.h src/haptics/cConstrainToLine.h src/haptics/cFreezeEffect.h src/haptics/cPositionForceFieldEffect.h src/haptics/cViscosityEffect.h src/haptics/haptics.h src/network/listener.h src/network/network.h src/network/streamer.h src/rpc/client.h src/rpc/compatibility.h src/rpc/config.h src/rpc/dispatcher.h src/rpc/rpc_error.h src/rpc/server.h src/rpc/this_handler.h src/rpc/this_server.h src/rpc/this_session.h src/rpc/version.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/graphics/cGenericMovingObject.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/rpc/client.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+obj/release/lin-x86_64-gcc/cPositionForceFieldEffect.o: src/combined/cCST.h src/combined/cCups.h src/combined/combined.h src/core/controller.h src/graphics/cArrow.h src/graphics/cGenericMovingObject.h src/graphics/cMovingDots.h src/graphics/cPipe.h src/graphics/graphics.h src/haptics/cBoundingPlane.h src/haptics/cConstantForceFieldEffect.h src/haptics/cConstrainToLine.h src/haptics/cFreezeEffect.h src/haptics/cPositionForceFieldEffect.h src/haptics/cViscosityEffect.h src/haptics/haptics.h src/network/listener.h src/network/network.h src/network/streamer.h src/rpc/client.h src/rpc/compatibility.h src/rpc/config.h src/rpc/dispatcher.h src/rpc/rpc_error.h src/rpc/server.h src/rpc/this_handler.h src/rpc/this_server.h src/rpc/this_session.h src/rpc/version.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+clean:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 132):
+	rm -f $(OUTPUT) $(OBJECTS) *~
+	rm -f $(MSG_OUTPUT) $(MSG_OBJECTS) *~
+	#rm -f $(LOG_OUTPUT) $(LOG_OBJECTS) *~
+	rm -rf $(OBJ_DIR)
+	rm -rf $(MSG_OBJ)
+	#rm -rf $(LOG_OBJ)
+	rm -rf $(BASE_DIR)
+	
+
+obj/release/lin-x86_64-gcc/listener.o: src/combined/cCST.h src/combined/cCups.h src/combined/combined.h src/core/controller.h src/graphics/cArrow.h src/graphics/cGenericMovingObject.h src/graphics/cMovingDots.h src/graphics/cPipe.h src/graphics/graphics.h src/haptics/cBoundingPlane.h src/haptics/cConstantForceFieldEffect.h src/haptics/cConstrainToLine.h src/haptics/cFreezeEffect.h src/haptics/cPositionForceFieldEffect.h src/haptics/cViscosityEffect.h src/haptics/haptics.h src/network/listener.h src/network/network.h src/network/streamer.h src/rpc/client.h src/rpc/compatibility.h src/rpc/config.h src/rpc/dispatcher.h src/rpc/rpc_error.h src/rpc/server.h src/rpc/this_handler.h src/rpc/this_server.h src/rpc/this_session.h src/rpc/version.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+obj/release/lin-x86_64-gcc/cMovingDots.o: src/combined/cCST.h src/combined/cCups.h src/combined/combined.h src/core/controller.h src/graphics/cArrow.h src/graphics/cGenericMovingObject.h src/graphics/cMovingDots.h src/graphics/cPipe.h src/graphics/graphics.h src/haptics/cBoundingPlane.h src/haptics/cConstantForceFieldEffect.h src/haptics/cConstrainToLine.h src/haptics/cFreezeEffect.h src/haptics/cPositionForceFieldEffect.h src/haptics/cViscosityEffect.h src/haptics/haptics.h src/network/listener.h src/network/network.h src/network/streamer.h src/rpc/client.h src/rpc/compatibility.h src/rpc/config.h src/rpc/dispatcher.h src/rpc/rpc_error.h src/rpc/server.h src/rpc/this_handler.h src/rpc/this_server.h src/rpc/this_session.h src/rpc/version.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/rpc/config.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+bin/lin-x86_64-gcc/messageHandler: obj/release/lin-x86_64-gcc bin/lin-x86_64-gcc obj/release/lin-x86_64-gcc/MessageHandler.o
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 116):
+	$(CXX) $(MSG_FLAGS) -I$(MSG_HDR) $(MSG_OBJECTS) $(MSG_LDFLAGS) -o $(MSG_OUTPUT)
+
+# Not a target:
+src/haptics/cViscosityEffect.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj/release/lin-x86_64-gcc/cArrow.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+# Not a target:
+src/haptics/cFreezeEffect.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+obj/release/lin-x86_64-gcc/cConstantForceFieldEffect.o: src/combined/cCST.h src/combined/cCups.h src/combined/combined.h src/core/controller.h src/graphics/cArrow.h src/graphics/cGenericMovingObject.h src/graphics/cMovingDots.h src/graphics/cPipe.h src/graphics/graphics.h src/haptics/cBoundingPlane.h src/haptics/cConstantForceFieldEffect.h src/haptics/cConstrainToLine.h src/haptics/cFreezeEffect.h src/haptics/cPositionForceFieldEffect.h src/haptics/cViscosityEffect.h src/haptics/haptics.h src/network/listener.h src/network/network.h src/network/streamer.h src/rpc/client.h src/rpc/compatibility.h src/rpc/config.h src/rpc/dispatcher.h src/rpc/rpc_error.h src/rpc/server.h src/rpc/this_handler.h src/rpc/this_server.h src/rpc/this_session.h src/rpc/version.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/haptics/cPositionForceFieldEffect.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/rpc/this_handler.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj/release/lin-x86_64-gcc/streamer.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+# Not a target:
+obj/release/lin-x86_64-gcc/cPipe.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+obj/release/lin-x86_64-gcc/network.o: src/combined/cCST.h src/combined/cCups.h src/combined/combined.h src/core/controller.h src/graphics/cArrow.h src/graphics/cGenericMovingObject.h src/graphics/cMovingDots.h src/graphics/cPipe.h src/graphics/graphics.h src/haptics/cBoundingPlane.h src/haptics/cConstantForceFieldEffect.h src/haptics/cConstrainToLine.h src/haptics/cFreezeEffect.h src/haptics/cPositionForceFieldEffect.h src/haptics/cViscosityEffect.h src/haptics/haptics.h src/network/listener.h src/network/network.h src/network/streamer.h src/rpc/client.h src/rpc/compatibility.h src/rpc/config.h src/rpc/dispatcher.h src/rpc/rpc_error.h src/rpc/server.h src/rpc/this_handler.h src/rpc/this_server.h src/rpc/this_session.h src/rpc/version.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+obj/release/lin-x86_64-gcc/cCST.o: src/combined/cCST.h src/combined/cCups.h src/combined/combined.h src/core/controller.h src/graphics/cArrow.h src/graphics/cGenericMovingObject.h src/graphics/cMovingDots.h src/graphics/cPipe.h src/graphics/graphics.h src/haptics/cBoundingPlane.h src/haptics/cConstantForceFieldEffect.h src/haptics/cConstrainToLine.h src/haptics/cFreezeEffect.h src/haptics/cPositionForceFieldEffect.h src/haptics/cViscosityEffect.h src/haptics/haptics.h src/network/listener.h src/network/network.h src/network/streamer.h src/rpc/client.h src/rpc/compatibility.h src/rpc/config.h src/rpc/dispatcher.h src/rpc/rpc_error.h src/rpc/server.h src/rpc/this_handler.h src/rpc/this_server.h src/rpc/this_session.h src/rpc/version.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+obj/release/lin-x86_64-gcc/cArrow.o: src/combined/cCST.h src/combined/cCups.h src/combined/combined.h src/core/controller.h src/graphics/cArrow.h src/graphics/cGenericMovingObject.h src/graphics/cMovingDots.h src/graphics/cPipe.h src/graphics/graphics.h src/haptics/cBoundingPlane.h src/haptics/cConstantForceFieldEffect.h src/haptics/cConstrainToLine.h src/haptics/cFreezeEffect.h src/haptics/cPositionForceFieldEffect.h src/haptics/cViscosityEffect.h src/haptics/haptics.h src/network/listener.h src/network/network.h src/network/streamer.h src/rpc/client.h src/rpc/compatibility.h src/rpc/config.h src/rpc/dispatcher.h src/rpc/rpc_error.h src/rpc/server.h src/rpc/this_handler.h src/rpc/this_server.h src/rpc/this_session.h src/rpc/version.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj/release/lin-x86_64-gcc/controller.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+obj/release/lin-x86_64-gcc/cBoundingPlane.o: src/combined/cCST.h src/combined/cCups.h src/combined/combined.h src/core/controller.h src/graphics/cArrow.h src/graphics/cGenericMovingObject.h src/graphics/cMovingDots.h src/graphics/cPipe.h src/graphics/graphics.h src/haptics/cBoundingPlane.h src/haptics/cConstantForceFieldEffect.h src/haptics/cConstrainToLine.h src/haptics/cFreezeEffect.h src/haptics/cPositionForceFieldEffect.h src/haptics/cViscosityEffect.h src/haptics/haptics.h src/network/listener.h src/network/network.h src/network/streamer.h src/rpc/client.h src/rpc/compatibility.h src/rpc/config.h src/rpc/dispatcher.h src/rpc/rpc_error.h src/rpc/server.h src/rpc/this_handler.h src/rpc/this_server.h src/rpc/this_session.h src/rpc/version.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+external/chai3d-3.2.0/Makefile.config:
+#  Implicit rule search has been done.
+#  Last modified 2021-02-08 14:46:52
+#  File has been updated.
+#  Successfully updated.
+
+bin/lin-x86_64-gcc:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 107):
+	mkdir -p $@
+
+# Not a target:
+src/haptics/cBoundingPlane.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+ 
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/rpc/this_session.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+all: bin/lin-x86_64-gcc/hapticEnvironment bin/lin-x86_64-gcc/messageHandler
+#  Command line target.
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Needs to be updated (-q is set).
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/3=0%
+
+# Not a target:
+src/combined/cCups.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj/release/lin-x86_64-gcc/cGenericMovingObject.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+# Not a target:
+src/graphics/cPipe.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+messaging/MessageHandler/MessageHandler.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+obj/release/lin-x86_64-gcc/haptics.o: src/combined/cCST.h src/combined/cCups.h src/combined/combined.h src/core/controller.h src/graphics/cArrow.h src/graphics/cGenericMovingObject.h src/graphics/cMovingDots.h src/graphics/cPipe.h src/graphics/graphics.h src/haptics/cBoundingPlane.h src/haptics/cConstantForceFieldEffect.h src/haptics/cConstrainToLine.h src/haptics/cFreezeEffect.h src/haptics/cPositionForceFieldEffect.h src/haptics/cViscosityEffect.h src/haptics/haptics.h src/network/listener.h src/network/network.h src/network/streamer.h src/rpc/client.h src/rpc/compatibility.h src/rpc/config.h src/rpc/dispatcher.h src/rpc/rpc_error.h src/rpc/server.h src/rpc/this_handler.h src/rpc/this_server.h src/rpc/this_session.h src/rpc/version.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+obj/release/lin-x86_64-gcc/MessageHandler.o: messaging/MessageHandler/MessageHandler.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/network/streamer.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj/release/lin-x86_64-gcc/listener.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+# Not a target:
+obj/release/lin-x86_64-gcc/cPositionForceFieldEffect.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+# Not a target:
+obj/release/lin-x86_64-gcc/haptics.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+# Not a target:
+src/haptics/haptics.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/combined/combined.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+obj/release/lin-x86_64-gcc/cPipe.o: src/combined/cCST.h src/combined/cCups.h src/combined/combined.h src/core/controller.h src/graphics/cArrow.h src/graphics/cGenericMovingObject.h src/graphics/cMovingDots.h src/graphics/cPipe.h src/graphics/graphics.h src/haptics/cBoundingPlane.h src/haptics/cConstantForceFieldEffect.h src/haptics/cConstrainToLine.h src/haptics/cFreezeEffect.h src/haptics/cPositionForceFieldEffect.h src/haptics/cViscosityEffect.h src/haptics/haptics.h src/network/listener.h src/network/network.h src/network/streamer.h src/rpc/client.h src/rpc/compatibility.h src/rpc/config.h src/rpc/dispatcher.h src/rpc/rpc_error.h src/rpc/server.h src/rpc/this_handler.h src/rpc/this_server.h src/rpc/this_session.h src/rpc/version.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+obj/release/lin-x86_64-gcc:
+#  Implicit rule search has not been done.
+#  Implicit/static pattern stem: ''
+#  File does not exist.
+#  File has been updated.
+#  Needs to be updated (-q is set).
+# automatic
+# @ := obj/release/lin-x86_64-gcc
+# automatic
+# * := 
+# automatic
+# < := 
+# automatic
+# + := 
+# automatic
+# % := 
+# automatic
+# ^ := 
+# automatic
+# ? := 
+# automatic
+# | := 
+# variable set hash-table stats:
+# Load=8/32=25%, Rehash=0, Collisions=1/12=8%
+#  recipe to execute (from 'Makefile', line 104):
+	mkdir -p $@
+
+# Not a target:
+obj/release/lin-x86_64-gcc/cConstantForceFieldEffect.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+# Not a target:
+src/haptics/cConstantForceFieldEffect.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj/release/lin-x86_64-gcc/cConstrainToLine.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+# Not a target:
+obj/release/lin-x86_64-gcc/cViscosityEffect.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+# Not a target:
+external/chai3d-3.2.0/Makefile.common:
+#  Implicit rule search has been done.
+#  Last modified 2021-02-08 14:46:52
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+src/network/listener.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+obj/release/lin-x86_64-gcc/controller.o: src/combined/cCST.h src/combined/cCups.h src/combined/combined.h src/core/controller.h src/graphics/cArrow.h src/graphics/cGenericMovingObject.h src/graphics/cMovingDots.h src/graphics/cPipe.h src/graphics/graphics.h src/haptics/cBoundingPlane.h src/haptics/cConstantForceFieldEffect.h src/haptics/cConstrainToLine.h src/haptics/cFreezeEffect.h src/haptics/cPositionForceFieldEffect.h src/haptics/cViscosityEffect.h src/haptics/haptics.h src/network/listener.h src/network/network.h src/network/streamer.h src/rpc/client.h src/rpc/compatibility.h src/rpc/config.h src/rpc/dispatcher.h src/rpc/rpc_error.h src/rpc/server.h src/rpc/this_handler.h src/rpc/this_server.h src/rpc/this_session.h src/rpc/version.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj/release/lin-x86_64-gcc/cCups.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+# Not a target:
+obj/release/lin-x86_64-gcc/cFreezeEffect.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+# Not a target:
+src/core/controller.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.SUFFIXES:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+obj/release/lin-x86_64-gcc/cFreezeEffect.o: src/combined/cCST.h src/combined/cCups.h src/combined/combined.h src/core/controller.h src/graphics/cArrow.h src/graphics/cGenericMovingObject.h src/graphics/cMovingDots.h src/graphics/cPipe.h src/graphics/graphics.h src/haptics/cBoundingPlane.h src/haptics/cConstantForceFieldEffect.h src/haptics/cConstrainToLine.h src/haptics/cFreezeEffect.h src/haptics/cPositionForceFieldEffect.h src/haptics/cViscosityEffect.h src/haptics/haptics.h src/network/listener.h src/network/network.h src/network/streamer.h src/rpc/client.h src/rpc/compatibility.h src/rpc/config.h src/rpc/dispatcher.h src/rpc/rpc_error.h src/rpc/server.h src/rpc/this_handler.h src/rpc/this_server.h src/rpc/this_session.h src/rpc/version.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/rpc/rpc_error.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+external/chai3d-3.2.0/lib/release/lin-x86_64-gcc/libchai3d.a:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/graphics/cArrow.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/graphics/graphics.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/rpc/compatibility.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+obj/release/lin-x86_64-gcc/cCups.o: src/combined/cCST.h src/combined/cCups.h src/combined/combined.h src/core/controller.h src/graphics/cArrow.h src/graphics/cGenericMovingObject.h src/graphics/cMovingDots.h src/graphics/cPipe.h src/graphics/graphics.h src/haptics/cBoundingPlane.h src/haptics/cConstantForceFieldEffect.h src/haptics/cConstrainToLine.h src/haptics/cFreezeEffect.h src/haptics/cPositionForceFieldEffect.h src/haptics/cViscosityEffect.h src/haptics/haptics.h src/network/listener.h src/network/network.h src/network/streamer.h src/rpc/client.h src/rpc/compatibility.h src/rpc/config.h src/rpc/dispatcher.h src/rpc/rpc_error.h src/rpc/server.h src/rpc/this_handler.h src/rpc/this_server.h src/rpc/this_session.h src/rpc/version.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/network/network.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# files hash-table stats:
+# Load=80/1024=8%, Rehash=0, Collisions=6/173=3%
+# VPATH Search Paths
+
+# No 'vpath' search paths.
+
+# No general ('VPATH' variable) search path.
+
+# strcache buffers: 1 (0) / strings = 177 / storage = 3884 B / avg = 21 B
+# current buf: size = 8162 B / used = 3884 B / count = 177 / avg = 21 B
+
+# strcache performance: lookups = 274 / hit rate = 35%
+# hash-table stats:
+# Load=177/8192=2%, Rehash=0, Collisions=4/274=1%
+# Finished Make data base on Fri Jul  1 09:54:56 2022
+
+ 

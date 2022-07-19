@@ -3,7 +3,7 @@
 #ifndef _CONTROLLER_H_
 #define _CONTROLLER_H_  
 
-#include "chai3d.h"
+#include "../../external/chai3d-3.2.0/src/chai3d.h"
 #include "GLFW/glfw3.h"
 #include <atomic>
 #include <string>
@@ -16,8 +16,8 @@
 #include "graphics/graphics.h"
 #include "combined/combined.h"
 #include <fstream>
-#include <thread>
 #include "rpc/client.h"
+
 
 using namespace chai3d;
 using namespace std;
@@ -58,7 +58,7 @@ struct ControlData
   
   //Object Tracking
   unordered_map<string, cGenericObject*> objectMap;
-  unordered_map<string, vector<string>> objectEffects;
+  unordered_map<string, vector<string>> objectEffects; // rsr. this one does not seem to be used
   unordered_map<string, cGenericEffect*> worldEffects;
 };
 

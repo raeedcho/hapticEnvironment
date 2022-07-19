@@ -21,6 +21,7 @@ GraphicsData graphicsData;
 
 void initDisplay(void)
 {
+  cout << "Initializing the display" << endl;
   graphicsData.stereoMode = C_STEREO_DISABLED;
   graphicsData.fullscreen = false;
   graphicsData.mirroredDisplay = false;
@@ -35,8 +36,8 @@ void initDisplay(void)
   const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
   int w = 0.8 * mode->height;
   int h = 0.5 * mode->height;
-  int x = 0.5 * (mode->width-w);
-  int y = 0.5 * (mode->height-h);
+  int x = 1 * (mode->width-w);
+  int y = 1 * (mode->height-h);
   
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
@@ -69,13 +70,16 @@ void initDisplay(void)
   glfwMakeContextCurrent(graphicsData.window);
   glfwSwapInterval(graphicsData.swapInterval);
 
-#ifdef GLEW_VERSION
-  if(glewInit() != GLEW_OK) {
-    cout << "Failed to initialize GLEW library" << endl;
-    glfwTerminate();
-    return;
-  }
-#endif
+  #ifdef GLEW_VERSION
+    if(glewInit() != GLEW_OK) {
+      cout << "Failed to initialize GLEW library" << endl;
+      glfwTerminate();
+      return;
+    }
+  #endif
+
+  cout << "Initialized display successfully" << endl;
+
 }
 
 /**
@@ -83,25 +87,34 @@ void initDisplay(void)
  */
 void initScene(void)
 {
+  cout << "Initializing the scene" << endl;
   graphicsData.world = new cWorld();
   graphicsData.world->m_backgroundColor.setBlack();
   graphicsData.camera = new cCamera(graphicsData.world);
   graphicsData.world->addChild(graphicsData.camera);
-  graphicsData.camera->set(cVector3d(400.0, 0.0, 0.0),
-                       cVector3d(0.0, 0.0, 0.0),
-                       cVector3d(0.0, 0.0, 1.0));
-  //graphicsData.camera->setClippingPlanes(10.0, -10.0);
-  //graphicsData.camera->setStereoMode(graphicsData.stereoMode);
-  //graphicsData.camera->setStereoEyeSeparation(0.03);
-  //graphicsData.camera->setStereoFocalLength(50.0);
+  graphicsData.camera->set(cVector3d(1.0, 0.0, 0.0), // camera position
+                       cVector3d(0.0, 0.0, 0.0), // point to look at
+                       cVector3d(0.0, 0.0, 1.0)); // the "up" vector
   graphicsData.camera->setMirrorVertical(graphicsData.mirroredDisplay);
   graphicsData.camera->setMirrorHorizontal(graphicsData.mirroredDisplay);  
+  graphicsData.camera->setOrthographicView(1); // width of the viewd scene, in meters
 
   graphicsData.light = new cDirectionalLight(graphicsData.world);
-  graphicsData.camera->addChild(graphicsData.light); 
   graphicsData.light->setEnabled(true);
-  graphicsData.light->setLocalPos(0.0, 500.0, 0.0);
-  graphicsData.light->setDir(0.0, -1.0, 0.0);
+  graphicsData.light->setDir(-1.0, 0.0, 0.1);
+  graphicsData.camera->addChild(graphicsData.light); 
+
+  // graphicsData.light2 = new cDirectionalLight(graphicsData.world);
+  // graphicsData.light2->setEnabled(true);
+  // graphicsData.light2->setDir(-1.0, 0.0, -1.0);
+  // graphicsData.camera->addChild(graphicsData.light2); 
+
+  //rsr. added for debugging
+  graphicsData.debuggerLable = new cLabel(NEW_CFONTCALIBRI20()); 
+  graphicsData.camera->m_frontLayer->addChild(graphicsData.debuggerLable);
+
+  cout << "Initialized the scene successfully" << endl;
+
 }
 
 /**
@@ -143,55 +156,262 @@ void keySelectCallback(GLFWwindow* window, int key, int scancode, int action, in
   if ((action != GLFW_PRESS) && (action != GLFW_REPEAT)) {
     return;
   }
-  else if ((key == GLFW_KEY_ESCAPE) || (key == GLFW_KEY_Q)) {
-    glfwSetWindowShouldClose(window, GLFW_TRUE);
-  }
-  else if(key == GLFW_KEY_F) {
-    graphicsData.fullscreen = !graphicsData.fullscreen;
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-    if (graphicsData.fullscreen) {
-      glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-      glfwSwapInterval(graphicsData.swapInterval);
+
+  switch (key){
+    case GLFW_KEY_ESCAPE:
+    case GLFW_KEY_Q:{
+      glfwSetWindowShouldClose(window, GLFW_TRUE);
+      break;
     }
-    else {
-      int w = 0.8 * mode->height;
-      int h = 0.5 * mode->height;
-      int x = 0.5 * (mode->width - w);
-      int y = 0.5 * (mode->height - h);
-      graphicsData.width = w;
-      graphicsData.height = h;
-      graphicsData.xPos = x;
-      graphicsData.yPos = y;
-      glfwSetWindowMonitor(window, NULL, x, y, w, h, mode->refreshRate);
-      glfwSwapInterval(graphicsData.swapInterval);
+
+    case GLFW_KEY_F:{
+      graphicsData.fullscreen = !graphicsData.fullscreen;
+      GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+      const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+      if (graphicsData.fullscreen) {
+        glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+        glfwSwapInterval(graphicsData.swapInterval);
+      }
+      else {
+        int w = 0.8 * mode->height;
+        int h = 0.5 * mode->height;
+        int x = 1 * (mode->width - w);
+        int y = 1 * (mode->height - h);
+        graphicsData.width = w;
+        graphicsData.height = h;
+        graphicsData.xPos = x;
+        graphicsData.yPos = y;
+        glfwSetWindowMonitor(window, NULL, x, y, w, h, mode->refreshRate);
+        glfwSwapInterval(graphicsData.swapInterval);
+      }
+      break;
     }
-  }
-  else {
-    const char* key_name;
-    if (key == 32) {
-      key_name = "space";
+
+    case GLFW_KEY_D:{
+      graphicsData.debuggerEnabled = !graphicsData.debuggerEnabled;
+      break;
     }
-    else {
-      key_name = glfwGetKeyName(key, 0);
+
+    case GLFW_KEY_1:{
+      M_CST_CREATE msg;
+      memset(&msg, 0, sizeof(msg));
+      auto packetIdx = controlData.client->async_call("getMsgNum");
+      auto timestamp = controlData.client->async_call("getTimestamp");
+      packetIdx.wait();
+      timestamp.wait();
+      int packetNum = packetIdx.get().as<int>();
+      double currTime = timestamp.get().as<double>();
+      msg.header.serial_no = packetNum;
+      msg.header.msg_type = CST_CREATE;
+      msg.header.timestamp = currTime;
+      msg.cstName[0] = 'c';
+      msg.hapticEnabled = true;
+      msg.lambdaVal = 1;
+      msg.visionEnabled = true;
+      msg.forceMagnitude = 10;
+
+      char packet[sizeof(msg)];
+      memcpy(&packet, &msg, sizeof(msg));
+      vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
+      auto result = controlData.client->async_call("sendMessage", packetData, sizeof(msg), controlData.MODULE_NUM);    
+      usleep(1000);
+      result.wait();  
+      break;    
     }
-    M_KEYPRESS keypressEvent;
-    memset(&keypressEvent, 0, sizeof(keypressEvent));
-    auto packetNum = controlData.client->call("getMsgNum").as<int>();
-    auto currTime = controlData.client->call("getTimestamp").as<double>();
-    keypressEvent.header.serial_no = packetNum;
-    keypressEvent.header.msg_type = KEYPRESS;
-    keypressEvent.header.timestamp = currTime;
-    memcpy(&(keypressEvent.keyname), key_name, sizeof(keypressEvent.keyname));
-    char* packet[sizeof(keypressEvent)];
-    memcpy(&packet, &keypressEvent, sizeof(keypressEvent));
-    auto res = controlData.client->call("sendMessage", (char* const) packet, sizeof(packet), controlData.MODULE_NUM).as<int>();
-    //sendPacket((char *) packet, sizeof(packet), false);
-    if (res == 1) {
-      cout << "Sent KEYPRESS message" << endl;
+
+    case GLFW_KEY_2:{
+      M_CST_START msg;
+      memset(&msg, 0, sizeof(msg));
+      auto packetIdx = controlData.client->async_call("getMsgNum");
+      auto timestamp = controlData.client->async_call("getTimestamp");
+      packetIdx.wait();
+      timestamp.wait();
+      int packetNum = packetIdx.get().as<int>();
+      double currTime = timestamp.get().as<double>();
+      msg.header.serial_no = packetNum;
+      msg.header.msg_type = CST_START;
+      msg.header.timestamp = currTime;
+      msg.cstName[0] = 'c';
+
+      char packet[sizeof(msg)];
+      memcpy(&packet, &msg, sizeof(msg));
+      vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
+      auto result = controlData.client->async_call("sendMessage", packetData, sizeof(msg), controlData.MODULE_NUM);    
+      usleep(1000);
+      result.wait();  
+      break;    
     }
-    else {
-      cout << "Error sending KEYPRESS message" << endl;
+    
+    case GLFW_KEY_3:{
+      M_CST_STOP msg;
+      memset(&msg, 0, sizeof(msg));
+      auto packetIdx = controlData.client->async_call("getMsgNum");
+      auto timestamp = controlData.client->async_call("getTimestamp");
+      packetIdx.wait();
+      timestamp.wait();
+      int packetNum = packetIdx.get().as<int>();
+      double currTime = timestamp.get().as<double>();
+      msg.header.serial_no = packetNum;
+      msg.header.msg_type = CST_STOP;
+      msg.header.timestamp = currTime;
+      msg.cstName[0] = 'c';
+
+      char packet[sizeof(msg)];
+      memcpy(&packet, &msg, sizeof(msg));
+      vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
+      auto result = controlData.client->async_call("sendMessage", packetData, sizeof(msg), controlData.MODULE_NUM);    
+      usleep(1000);
+      result.wait();  
+      break;    
+    }
+
+    case GLFW_KEY_4:{
+      M_CST_DESTRUCT msg;
+      memset(&msg, 0, sizeof(msg));
+      auto packetIdx = controlData.client->async_call("getMsgNum");
+      auto timestamp = controlData.client->async_call("getTimestamp");
+      packetIdx.wait();
+      timestamp.wait();
+      int packetNum = packetIdx.get().as<int>();
+      double currTime = timestamp.get().as<double>();
+      msg.header.serial_no = packetNum;
+      msg.header.msg_type = CST_DESTRUCT;
+      msg.header.timestamp = currTime;
+      msg.cstName[0] = 'c';
+
+      char packet[sizeof(msg)];
+      memcpy(&packet, &msg, sizeof(msg));
+      vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
+      auto result = controlData.client->async_call("sendMessage", packetData, sizeof(msg), controlData.MODULE_NUM);    
+      usleep(1000);
+      result.wait();  
+      break;    
+    }
+    
+    case GLFW_KEY_5:{
+      M_CUPS_CREATE msg;
+      memset(&msg, 0, sizeof(msg));
+      auto packetIdx = controlData.client->async_call("getMsgNum");
+      auto timestamp = controlData.client->async_call("getTimestamp");
+      packetIdx.wait();
+      timestamp.wait();
+      int packetNum = packetIdx.get().as<int>();
+      double currTime = timestamp.get().as<double>();
+      msg.header.serial_no = packetNum;
+      msg.header.msg_type = CUPS_CREATE;
+      msg.header.timestamp = currTime;
+      msg.cupsName[0] = 'c';
+      msg.escapeAngle = 45; //in degress
+      msg.pendulumLength = 0.080;
+      msg.ballMass = 0.3;
+      msg.cartMass = 0.3;
+
+      char packet[sizeof(msg)];
+      memcpy(&packet, &msg, sizeof(msg));
+      vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
+      auto result = controlData.client->async_call("sendMessage", packetData, sizeof(msg), controlData.MODULE_NUM);    
+      usleep(1000);
+      result.wait();  
+      break;    
+    }
+
+    case GLFW_KEY_6:{
+      M_CUPS_START msg;
+      memset(&msg, 0, sizeof(msg));
+      auto packetIdx = controlData.client->async_call("getMsgNum");
+      auto timestamp = controlData.client->async_call("getTimestamp");
+      packetIdx.wait();
+      timestamp.wait();
+      int packetNum = packetIdx.get().as<int>();
+      double currTime = timestamp.get().as<double>();
+      msg.header.serial_no = packetNum;
+      msg.header.msg_type = CUPS_START;
+      msg.header.timestamp = currTime;
+      msg.cupsName[0] = 'c';
+
+      char packet[sizeof(msg)];
+      memcpy(&packet, &msg, sizeof(msg));
+      vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
+      auto result = controlData.client->async_call("sendMessage", packetData, sizeof(msg), controlData.MODULE_NUM);    
+      usleep(1000);
+      result.wait();  
+      break;    
+    }
+    
+    case GLFW_KEY_7:{
+      M_CUPS_STOP msg;
+      memset(&msg, 0, sizeof(msg));
+      auto packetIdx = controlData.client->async_call("getMsgNum");
+      auto timestamp = controlData.client->async_call("getTimestamp");
+      packetIdx.wait();
+      timestamp.wait();
+      int packetNum = packetIdx.get().as<int>();
+      double currTime = timestamp.get().as<double>();
+      msg.header.serial_no = packetNum;
+      msg.header.msg_type = CUPS_STOP;
+      msg.header.timestamp = currTime;
+      msg.cupsName[0] = 'c';
+
+      char packet[sizeof(msg)];
+      memcpy(&packet, &msg, sizeof(msg));
+      vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
+      auto result = controlData.client->async_call("sendMessage", packetData, sizeof(msg), controlData.MODULE_NUM);    
+      usleep(1000);
+      result.wait();  
+      break;    
+    }
+
+    case GLFW_KEY_8:{
+      M_CUPS_DESTRUCT msg;
+      memset(&msg, 0, sizeof(msg));
+      auto packetIdx = controlData.client->async_call("getMsgNum");
+      auto timestamp = controlData.client->async_call("getTimestamp");
+      packetIdx.wait();
+      timestamp.wait();
+      int packetNum = packetIdx.get().as<int>();
+      double currTime = timestamp.get().as<double>();
+      msg.header.serial_no = packetNum;
+      msg.header.msg_type = CUPS_DESTRUCT;
+      msg.header.timestamp = currTime;
+      msg.cupsName[0] = 'c';
+
+      char packet[sizeof(msg)];
+      memcpy(&packet, &msg, sizeof(msg));
+      vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
+      auto result = controlData.client->async_call("sendMessage", packetData, sizeof(msg), controlData.MODULE_NUM);    
+      usleep(1000);
+      result.wait();  
+      break;    
+    }
+
+
+    default:{
+      const char* key_name;
+      if (key == 32) {
+        key_name = "space";
+      }
+      else {
+        key_name = glfwGetKeyName(key, 0);
+      }
+      M_KEYPRESS keypressEvent;
+      memset(&keypressEvent, 0, sizeof(keypressEvent));
+      auto packetNum = controlData.client->call("getMsgNum").as<int>();
+      auto currTime = controlData.client->call("getTimestamp").as<double>();
+      keypressEvent.header.serial_no = packetNum;
+      keypressEvent.header.msg_type = KEYPRESS;
+      keypressEvent.header.timestamp = currTime;
+      memcpy(&(keypressEvent.keyname), key_name, sizeof(keypressEvent.keyname));
+      char* packet[sizeof(keypressEvent)];
+      memcpy(&packet, &keypressEvent, sizeof(keypressEvent));
+      auto res = controlData.client->call("sendMessage", (char* const) packet, sizeof(packet), controlData.MODULE_NUM).as<int>();
+      //sendPacket((char *) packet, sizeof(packet), false);
+      if (res == 1) {
+        cout << "Sent KEYPRESS message" << endl;
+      }
+      else {
+        cout << "Error sending KEYPRESS message" << endl;
+      }
+      break;
     }
   }
 }
@@ -211,9 +431,40 @@ void updateGraphics(void)
     graphicsData.graphicsClock = clock();
     (*it)->graphicsLoopFunction(dt, hapticsData.tool->getDeviceGlobalPos(), hapticsData.tool->getDeviceGlobalLinVel());
   }
-  glFinish();
+  // rsr. added for debugging: Todo: 
+  if (graphicsData.debuggerEnabled){
+    string str ="";
+    for(auto thisItem : graphicsData.debuggerContent){
+      str = str + thisItem.first + ": " + cStr(thisItem.second,3) + " | ";
+    }
+    graphicsData.debuggerLable->setText(str);
+  }
+  else{
+    graphicsData.debuggerLable->setText("");
+  }
+  
+  glFinish(); // rsr. waits here untile entire scene is shown on the screen.
   GLenum err = glGetError();
   if (err != GL_NO_ERROR) {
     cout << "Error: " << gluErrorString(err) << endl;
+  }
+}
+
+/**
+ * RSR. Function starts the main indefinite loop that the program relies on.  
+ *
+ * @brief an indefinite loop to update graphics
+ * 
+ */
+void startGraphicsLoop(void){
+  cout << "Starting the graphics loop" << endl;
+  while (!glfwWindowShouldClose(graphicsData.window)) {
+    glfwGetWindowSize(graphicsData.window, &graphicsData.width, &graphicsData.height);
+    graphicsData.graphicsClock = clock();
+    updateGraphics();
+    glfwSwapBuffers(graphicsData.window);
+    glfwPollEvents();
+    graphicsData.freqCounterGraphics.signal(1);
+    graphicsData.debuggerContent["fps"] = graphicsData.freqCounterGraphics.getFrequency();
   }
 }

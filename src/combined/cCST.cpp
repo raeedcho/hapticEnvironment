@@ -18,7 +18,7 @@ extern GraphicsData graphicsData;
 cCST::cCST(cWorld* worldPtr, double l, double f, bool v, bool h):cGenericMovingObject(), cGenericEffect(worldPtr)
 {
   world = worldPtr;
-  lambda = l/60 + 1;
+  lambda = l/60 + 1; // rsr. why the /60+1 ?
   forceMagnitude = f;
   visionEnabled = v;
   hapticEnabled = h;
@@ -26,8 +26,8 @@ cCST::cCST(cWorld* worldPtr, double l, double f, bool v, bool h):cGenericMovingO
   currPos = new cVector3d(0.0, 0.0, 0.0);
   
   // Visual Cursor
-  visualCursor = new cShapeSphere(2);
-  visualCursor->m_material->setColorf(0.0, 0.75, 1.0);
+  visualCursor = new cShapeSphere(HAPTIC_TOOL_RADIUS);
+  visualCursor->m_material->setColorf(0.0, 0.75, 1.0, 1.0);
   visualCursor->setLocalPos(*currPos);
   visualCursor->setEnabled(false);
   world->addChild(visualCursor);
@@ -50,7 +50,7 @@ cVector3d* cCST::computeNextPosition(cVector3d toolPos)
   {
     double cursorY = currPos->y();
     double toolY = toolPos.y();
-    double nextY = (lambda * cursorY) + ((lambda-1) * toolY);
+    double nextY = (lambda * cursorY) + ((lambda-1) * toolY); // rsr. this is the CST equation. here lambda-1 may explain why before we had lambda=l/60+1
     //cout << cursorY << ", " << nextY << endl;
     cVector3d* nextPos = new cVector3d(0.0, nextY, 0.0);
     currPos->y(nextPos->y());
@@ -98,13 +98,17 @@ cVector3d* cCST::computeNextPosition(cVector3d toolPos)
 bool cCST::computeForce(const cVector3d& a_toolPos, const cVector3d& a_toolVel,
                   const unsigned int& a_toolID, cVector3d& a_reactionForce)
 {
-  usleep(1000);
+  // usleep(1000); // rsr. force is update at 1kHz?
   if (hapticEnabled == true && running == true) {
     cVector3d* nextPos = cCST::computeNextPosition(a_toolPos);
-    double forceMark = (forceMagnitude * (hapticsData.maxForce) * (nextPos->y()/200) + 0.0);
-    //double forceMark = forceMagnitude * 8.0 * (nextPos->y()/100);
-    if (forceMark > 8.0) {
-      a_reactionForce.y(8.0);
+    double deltaY = nextPos->y() - a_toolPos.y();
+    // double forceMark = (forceMagnitude * (hapticsData.maxForce) * (nextPos->y()/200) + 0.0);
+    double forceMark = (forceMagnitude * deltaY ); //rsr. changed it to spring-like
+    if (forceMark > hapticsData.maxForce) {
+      a_reactionForce.y(hapticsData.maxForce);
+    }
+    else if (forceMark <-hapticsData.maxForce) {
+      a_reactionForce.y(-hapticsData.maxForce);
     }
     else {
       a_reactionForce.y(forceMark);
@@ -134,6 +138,7 @@ void cCST::graphicsLoopFunction(double dt, cVector3d toolPos, cVector3d toolVel)
     }
     cVector3d* nextPos = cCST::computeNextPosition(toolPos);
     visualCursor->setLocalPos(0.0, currPos->y(), 0.0);
+    //rsr, this loop probably runs at 60Hz. Todo: check this. Todo: make timing more controlled by separating graphics from physics (perhaps move ODE equation to the haptics loop that runs much faster)
   }
 }
 
@@ -174,7 +179,7 @@ bool cCST::setLambda(double l)
     return false;
   }
   else {
-    lambda = l/60 + 1;
+    lambda = l/60 + 1; //rsr. why l/60+1. why not just "l"?
     return true;
   }
 }

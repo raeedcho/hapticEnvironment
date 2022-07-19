@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "chai3d.h"
 
-void startListener(void);
+void startListenerThread(void);
 void updateListener(void);
 //void closeListener(void);
 //void startDataLogger(void);

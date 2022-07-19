@@ -21,7 +21,7 @@ extern HapticData hapticsData;
 /** 
  * Start the listening thread
  */
-void startListener()
+void startListenerThread()
 {
   controlData.listenerThread = new cThread();
   controlData.listenerThread->start(updateListener, CTHREAD_PRIORITY_HAPTICS);

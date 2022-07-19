@@ -23,7 +23,7 @@ struct HapticData
   double maxForce;
 };
 
-#define HAPTIC_TOOL_RADIUS 2
+#define HAPTIC_TOOL_RADIUS 0.005
 
 void initHaptics(void);
 void startHapticsThread(void);

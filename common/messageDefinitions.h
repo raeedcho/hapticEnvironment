@@ -33,6 +33,7 @@
 #define CUPS_START 510
 #define CUPS_STOP 511
 #define CUPS_DATA 512 
+#define CUPS_RESET 513
 
 // Haptics Messages 1000-2000
 #define HAPTIC_DATA_STREAM 1000
@@ -199,9 +200,14 @@ typedef struct {
 
 typedef struct {
   MSG_HEADER header;
-  double ballPos;
-  double cartPos;
+  double ballAngle; //rsr changed it from ballPos
+  double cupPos; 
 } M_CUPS_DATA;
+
+typedef struct {
+  MSG_HEADER header;
+  char cupsName[MAX_STRING_LENGTH];
+} M_CUPS_RESET;
 
 typedef struct {
   MSG_HEADER header;

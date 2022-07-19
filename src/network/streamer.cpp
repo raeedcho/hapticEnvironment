@@ -20,7 +20,7 @@ extern HapticData hapticsData;
 /**
  * Start the data streaming thread. The pointer to the thread is stored in the ControlData struct
  */
-void startStreamer(void)
+void startStreamerThread(void)
 {
   controlData.streamerThread = new cThread();
   controlData.streamerThread->start(updateStreamer, CTHREAD_PRIORITY_HAPTICS);

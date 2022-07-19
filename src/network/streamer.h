@@ -7,7 +7,7 @@
 #include "chai3d.h"
 #include <vector>
 
-void startStreamer(void);
+void startStreamerThread(void);
 //void closeStreamer(void);
 void updateStreamer(void);
 #endif

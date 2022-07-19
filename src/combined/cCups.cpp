@@ -5,65 +5,97 @@ extern GraphicsData graphicsData;
 
 /**
  * @param worldPtr Pointer to the world 
+ * @param esc escape angle in degrees
+ * @param l pendulum length in mm
+ * @param bM ball mass in kg
+ * @param cM cart mass in kg
  * 
  */
 cCups::cCups(cWorld* worldPtr, double esc, double l, double bM, double cM):cGenericMovingObject(), cGenericEffect(worldPtr)
 {
   world = worldPtr;
-  escapeTheta = esc;
+  escapeTheta = (esc/180.0)*M_PI;
   pendulumLength = l;
   ballMass = bM;
-  cartMass = cM;
+  cupMass = cM;
   gravity = 9.8;
+  ballDamping = 0;
 
-  startTarget = new cVector3d(0.0, -100.0, 0.0);
-  stopTarget = new cVector3d(0.0, 100.0, 0.0);
-  ballPos = 0.0;
-  ballVel = 0.0;
+
+  ballAngle = 0.0;
+  ballVelocity = 0.0;
   ballForce = 0.0;
 
+  interactionForce = 0;
+
+  // Gepmetrical dimentions
+  double ballRadius = 0.1*pendulumLength;
+  double boxDepth = 0.01;
+  double boxWidth = 1.3 * pendulumLength*cSinRad(escapeTheta)*2;
+  double boxHeight = pendulumLength*(1-cCosRad(escapeTheta)) + 3*ballRadius;
+
+  targetDistance = 0.3;
+  startTarget = new cVector3d(-0.1, -targetDistance/2, boxHeight/2 - pendulumLength - 3*ballRadius);
+  stopTarget  = new cVector3d(-0.1,  targetDistance/2, boxHeight/2 - pendulumLength - 3*ballRadius);
+  
   //Start and stop boxes
-  start = new cShapeBox(0.0, 2*pendulumLength, pendulumLength);
+  start = new cShapeBox(boxDepth, boxWidth, boxHeight);
   start->setLocalPos(*startTarget);
   start->m_material->setColorf(0.0, 1.0, 0.0);
   world->addChild(start);
 
-  stop = new cShapeBox(0.0, 2*pendulumLength, pendulumLength);
+  stop = new cShapeBox(boxDepth, boxWidth, boxHeight);
   stop->setLocalPos(*stopTarget);
   stop->m_material->setColorf(0.0, 1.0, 0.0);
   world->addChild(stop);
 
-  cartPos = -100.0;
-  cartVel = 0.0;
-  cartAcc = 0.0;
 
-  // Ball
-  ball = new cShapeSphere(2);
-  ball->m_material->setColorf(0.0, 0.75, 1.0);
-  ball->m_material->setStiffness(hapticsData.hapticDeviceInfo.m_maxLinearStiffness);
-  ball->createEffectSurface();
-  ball->setLocalPos(*startTarget);
-  ball->setEnabled(true);
-  world->addChild(ball);
-  
+  cVector3d toolPosition;
+  toolPosition = hapticsData.tool->getLocalPos();
+  cupPos = toolPosition.y();
+  cupVel = 0.0;
+  cupAcc = 0.0;
+
   //Cup 
   cupMesh = new cMesh();
-  cMatrix3d* rotationY = new cMatrix3d(0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0);
-  cMatrix3d* rotationZ = new cMatrix3d(cCosDeg(45), -cSinDeg(45), 0.0, cSinDeg(45), cCosDeg(45), 0.0, 0, 0, 1);
+  cMatrix3d* rotationY = new cMatrix3d(0,0,-1 , 0,1,0 , 1,0,0);
+  cMatrix3d* rotationZ = new cMatrix3d(cCosDeg(90-esc), -cSinDeg(90-esc), 0.0, cSinDeg(90-esc), cCosDeg(90-esc), 0.0, 0, 0, 1);
   cMatrix3d rotation = cMul(*rotationY, *rotationZ);
-  cVector3d cupPos = *startTarget - cVector3d(0.0, cartPos, -pendulumLength+2);
-  cCreateRingSection(cupMesh, 1, 1, pendulumLength, 90, true, 10, 10, cupPos, rotation, cColorf(1.0, 1.0, 0.0, 1.0));
+  cVector3d cupCenterPosition = cVector3d(0.0, cupPos, 0.0);
+  cCreateRingSection(cupMesh, ballRadius, ballRadius, pendulumLength+2*ballRadius, esc*2, true, 10, 10, cupCenterPosition, rotation, cColorf(1.0, 1.0, 0.0, 1.0));
   cupMesh->setEnabled(true);
   cupMesh->createEffectSurface();
-  cupMesh->m_material->setStiffness(hapticsData.hapticDeviceInfo.m_maxLinearStiffness);
+  cupMesh->m_material->setStiffness(0.0); //rsr changed it to zero stiffness
   world->addChild(cupMesh);
 
-  running = false;
+  // Ball
+  ball = new cShapeSphere(ballRadius);
+  ball->m_material->setColorf(0.0, 0.75, 1.0);
+  ball->m_material->setStiffness(0.); //rsr changed it to zero stiffness
+  ball->createEffectSurface();
+  ball->setLocalPos(cVector3d(0.0, cupPos, -pendulumLength));
+  ball->setEnabled(true);
+  world->addChild(ball);
+  ballInCup = true;
 
-  
+
+
+  // Background world viscosity
+  hapticsData.tool->m_material->setViscosity(0.05*hapticsData.hapticDeviceInfo.m_maxLinearDamping);
+  hapticsData.tool->createEffectViscosity();
+
+  // Linear path constraint 
+  // double constraintStiffness = 500; 
+  // cVector3d* point1 = new cVector3d(0,-1,0);
+  // cVector3d* point2 = new cVector3d(0,1,0);
+  // pathConstraint = new cConstrainToLine(world, point1, point2, constraintStiffness);
+  // pathConstraint->setEnabled(true);
+  // controlData.worldEffects["pathConstraint"] = pathConstraint;
+
   // Clock to prevent updates from happening too quickly
   cupsClock = new cPrecisionClock();
   lastUpdateTime = 0.0;
+  running = false;
 }
 
 bool cCups::computeForce(const cVector3d& a_toolPos, const cVector3d& a_toolVel,
@@ -72,21 +104,53 @@ bool cCups::computeForce(const cVector3d& a_toolPos, const cVector3d& a_toolVel,
   if (running == true) {
     double cupsTime = cupsClock->getCurrentTimeSeconds();
     double dt = cupsTime - lastUpdateTime;
-    if (dt >= 0.01) {
+    // cupPos = a_toolPos.y();
+    // cupAcc = ((a_toolVel.y() - cupVel)/dt + cupAcc)/2; 
+    // cupVel = a_toolVel.y();  
+    if (dt >= 0.002){ 
+      cupPos = a_toolPos.y();
+      cupAcc = (a_toolVel.y() - cupVel)/dt; 
+      cupVel = a_toolVel.y();  
+      graphicsData.debuggerContent["cup sim"] = 1/dt;
       lastUpdateTime = cupsTime;
-      cartPos = a_toolPos.y();
-      double newCartVel = a_toolVel.y();
-      cartAcc = 2.0 * floor(((newCartVel - cartVel)/dt)*100/100);
-      cartVel = newCartVel;
-      updateNextBallPosition(dt);
+      updateNextballAngle(dt);
     }
-    double fBall = ballMass * pendulumLength * (computeBallAcceleration(ballPos) * cCosDeg(ballPos) - (ballVel * ballVel) * cSinDeg(ballPos));
-    //ballForce = fmod(fBall, hapticsData.hapticDeviceInfo.m_maxLinearForce);
-    a_reactionForce.y(0.0*fBall);
+    double fBall = ballMass * pendulumLength * (computeBallAcceleration(ballAngle, ballVelocity) * cCosRad(ballAngle) - (ballVelocity * ballVelocity) * cSinRad(ballAngle));
+    double fInertia = (cupMass + ballMass) * cupAcc;
+    double totalForce = 1*(fInertia*0 - fBall); // this is in the opposite direction of the reaction force. Newton's third law
+
+    if (!ballInCup){
+      totalForce = 0.;
+    }
+
+    a_reactionForce.x(0.0);
+    a_reactionForce.z(0.0);
+    if (totalForce > hapticsData.maxForce)
+      a_reactionForce.y(hapticsData.maxForce);
+    else if (totalForce < -hapticsData.maxForce)
+      a_reactionForce.y(-hapticsData.maxForce);
+    else
+      a_reactionForce.y(totalForce);      
+
+
+    // the path constraint
+    double stiffness = 100;
+    double damping = 10;
+    cVector3d projectedPont = cProjectPointOnLine(a_toolPos, cVector3d(-0.1,0,0), cVector3d(0,1,0)); //distance to line 
+    cVector3d dalta = cSub(projectedPont, a_toolPos);
+    cVector3d orthogonalVel = a_toolVel;
+    orthogonalVel.y(0);
+    cVector3d constraingForce = cAdd(cMul(-damping,orthogonalVel), cMul(stiffness,dalta));
+    a_reactionForce.add(constraingForce);
+
+    graphicsData.debuggerContent["fBall"] = fBall;
+    graphicsData.debuggerContent["fInertia"] = fInertia;
     return true;
   }
   else {
     a_reactionForce.zero();
+    graphicsData.debuggerContent.erase("fBall");
+    graphicsData.debuggerContent.erase("fInertia");
   }
   return true;
 }
@@ -95,73 +159,77 @@ void cCups::graphicsLoopFunction(double dt, cVector3d toolPos, cVector3d toolVel
 {
   if (running == true) {
     // Update cart graphics
-    cupMesh->setLocalPos(0.0, toolPos.y(), 0.0);
+    double localCupY = toolPos.y(); //rsr. to read current tool position, but at the same time not overwriting the cupPos variable (which is done in the computerForce loop)
+    cupMesh->setLocalPos(0.0, localCupY, 0.0);
 
+    
     // Update ball graphics
-
-    double ballX = cartPos - pendulumLength * cSinDeg(ballPos);
-    double ballY = pendulumLength - pendulumLength * cCosDeg(ballPos);
-    cVector3d* newBallPos = new cVector3d(0.0, floor(ballX*100)/100, floor(ballY*100)/100);
-    ball->setLocalPos(*newBallPos); //cVector3d(toolPos.x(), floor(ballX*100)/100, floor(ballY*100)/100));
+    double ballY, ballZ; 
+    if (abs(ballAngle)>escapeTheta) {
+      ballInCup = false;
+    }
+    if (ballInCup) {
+      ballY = localCupY + pendulumLength * cSinRad(ballAngle); 
+      ballZ = -pendulumLength * cCosRad(ballAngle); 
+    }
+    else {
+      ballY = ball->getLocalPos().y(); 
+      ballZ = 0; 
+    }
+    cVector3d* ballCenter = new cVector3d(0.0, ballY, ballZ);
+    ball->setLocalPos(*ballCenter); 
   }
 }
 
-double cCups::computeBallAcceleration(double ballP) 
+double cCups::computeBallAcceleration(double theta, double omega) 
 {
-  double ballAcc = fmod((cartAcc/pendulumLength) * cCosDeg(ballP) - (gravity/pendulumLength) * cSinDeg(ballP), 360);
+  // TODO. get ball acc from states, not the cupAcc for less noise
+  double ballAcc = -(cupAcc/pendulumLength)*cCosRad(theta) - (gravity/pendulumLength)*cSinRad(theta) - ballDamping*omega/(ballMass*pendulumLength*pendulumLength);
   return ballAcc;
 }
 
-void cCups::updateNextBallPosition(double dt)
+/**
+ * Use Runge-Kutta-4 to ingrate the equation of motion to give the current ball angle and angular velocity
+ * 
+ * @brief  integrate the ball equation to caclulate next ballAngle/ballVelocity
+ * @param dt current itegration time step
+ */
+void cCups::updateNextballAngle(double dt)
 {
-  double ballPos1 = fmod(ballPos, 360);
-  double ballVel1 = fmod(ballVel, 360);
-  double ballAcc1 = computeBallAcceleration(ballPos1);
+  double k1 = computeBallAcceleration(ballAngle, ballVelocity);
+  double k2 = computeBallAcceleration(ballAngle + 0.5 * dt * ballVelocity, ballVelocity + 0.5 * dt * k1);
+  double k3 = computeBallAcceleration(ballAngle + 0.5 * dt * ballVelocity + 0.25 * dt * dt * k1, ballVelocity + 0.5 * dt * k2);
+  double k4 = computeBallAcceleration(ballAngle + dt * ballVelocity + 0.5 * dt * dt * k2, ballVelocity + dt * k3);
 
-  double ballPos2 = fmod(ballPos + 0.5 * ballVel1 * dt, 360);
-  double ballVel2 = fmod(ballVel + 0.5 * ballAcc1 * dt, 360);
-  double ballAcc2 = computeBallAcceleration(ballPos2);
+  ballAngle = ballAngle + dt * ballVelocity + dt * dt / 6.0 * (k1 + k2 + k3);
+  ballVelocity = ballVelocity + dt / 6.0 * (k1 + 2*k2 + 2*k3 +k4);
 
-  double ballPos3 = fmod(ballPos2 + 0.5 * ballVel2 * dt, 360);
-  double ballVel3 = fmod(ballVel2 + 0.5 * ballAcc2 * dt, 360);
-  double ballAcc3 = computeBallAcceleration(ballPos3);
-
-  double ballPos4 = fmod(ballPos + ballVel3 * dt, 360);
-  double ballVel4 = fmod(ballVel + ballAcc3 * dt, 360);
-  double ballAcc4 = computeBallAcceleration(ballPos4);
-
-  double ballPosFinal = fmod(ballPos + (dt/6.0) * (ballVel1 + 2*ballVel2 + 2*ballVel3 + ballVel4), 360);
-  double ballVelFinal = fmod(ballVel + (dt/6.0) * (ballAcc1 + 2*ballAcc2 + 2*ballAcc3 + ballAcc4), 360);
-  double ballAccFinal = computeBallAcceleration(ballPosFinal);
   
-  
-  ballPos = ballPosFinal;
-  ballVel = ballVelFinal;
-  
-  M_CUPS_DATA cupsData;
-  memset(&cupsData, 0, sizeof(cupsData));
-  auto packetIdx = controlData.client->async_call("getMsgNum");
-  auto timestamp = controlData.client->async_call("getTimestamp");
-  packetIdx.wait();
-  timestamp.wait();
-  int packetNum = packetIdx.get().as<int>();
-  double currTime = timestamp.get().as<double>();
-  cupsData.header.serial_no = packetNum;
-  cupsData.header.msg_type = CUPS_DATA;
-  cupsData.header.timestamp = currTime;
-  cupsData.ballPos = ballPos;
-  cupsData.cartPos = cartPos;
-  char packet[sizeof(cupsData)];
-  memcpy(&packet, &cupsData, sizeof(cupsData));
-    vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
+  // M_CUPS_DATA cupsData;
+  // memset(&cupsData, 0, sizeof(cupsData));
+  // auto packetIdx = controlData.client->async_call("getMsgNum");
+  // auto timestamp = controlData.client->async_call("getTimestamp");
+  // packetIdx.wait();
+  // timestamp.wait();
+  // int packetNum = packetIdx.get().as<int>();
+  // double currTime = timestamp.get().as<double>();
+  // cupsData.header.serial_no = packetNum;
+  // cupsData.header.msg_type = CUPS_DATA;
+  // cupsData.header.timestamp = currTime;
+  // cupsData.ballAngle = ballAngle;
+  // cupsData.cupPos = cupPos;
+  // char packet[sizeof(cupsData)];
+  // memcpy(&packet, &cupsData, sizeof(cupsData));
+  //   vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
 
-  auto cupsInt = controlData.client->async_call("sendMessage", packetData, sizeof(cupsData), controlData.MODULE_NUM);    
+  // auto cupsInt = controlData.client->async_call("sendMessage", packetData, sizeof(cupsData), controlData.MODULE_NUM);    
 
 }
 
 void cCups::startCups()
 {
   running = true;
+  ballInCup = true;
   cupsClock->start();
   lastUpdateTime = cupsClock->getCurrentTimeSeconds();
 }
@@ -169,18 +237,38 @@ void cCups::startCups()
 void cCups::stopCups()
 {
   running = false;
-  ballPos = 0.0;
-  ballVel = 0.0;
+  ballInCup = true;
+  ballAngle = 0.0;
+  ballVelocity = 0.0;
   ballForce = 0.0;
-  cartPos = -100;
-  cartVel = 0.0;
-  cartAcc = 0.0;
+  // cupPos = -100; //rsr do not reset poisition for visual consistency
+  cupVel = 0.0;
+  cupAcc = 0.0;
   cupsClock->stop();
   cupsClock->reset();
 }
+
+// for now resetCups and stopCups do the same thing. TODO: Reset moves the robot back to 
+void cCups::resetCups()
+{
+  running = false;
+  ballInCup = true;
+  ballAngle = 0.0;
+  ballVelocity = 0.0;
+  ballForce = 0.0;
+  // cupPos = -100; //rsr do not reset poisition for visual consistency
+  cupVel = 0.0;
+  cupAcc = 0.0;
+  cupsClock->stop();
+  cupsClock->reset();
+}
+
 
 void cCups::destructCups()
 {
   world->deleteChild(ball);
   world->deleteChild(cupMesh);
+  world->deleteChild(start);
+  world->deleteChild(stop);
+  hapticsData.tool->deleteAllEffects();
 }
