@@ -129,3 +129,25 @@ void closeAllConnections()
   close(controlData.msg_socket);
 
 }
+
+
+/**
+ * @brief Create a Messsage Header that is embeded on top of all messages 
+ * 
+ * @param msg_type Indicates the type of the sent message
+ * @return MSG_HEADER A header struct that contains message type and a time stamp
+ */
+MSG_HEADER createMesssageHeader(int msg_type)
+{
+  MSG_HEADER header;
+  auto packetIdx = controlData.client->async_call("getMsgNum");
+  auto timestamp = controlData.client->async_call("getTimestamp");
+  packetIdx.wait();
+  timestamp.wait();
+  int packetNum = packetIdx.get().as<int>();
+  double currTime = timestamp.get().as<double>();
+  header.serial_no = packetNum;
+  header.msg_type = msg_type;
+  header.timestamp = currTime;
+  return header;
+}

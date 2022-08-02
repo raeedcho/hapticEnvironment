@@ -5,7 +5,14 @@
         "iosfwd": "cpp",
         "future": "cpp",
         "functional": "cpp",
-        "new": "cpp"
+        "new": "cpp",
+        "vector": "cpp",
+        "type_traits": "cpp",
+        "mutex": "cpp",
+        "*.tcc": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "string_view": "cpp"
     },
     "C_Cpp.errorSquiggles": "Disabled",
     "C_Cpp.intelliSenseEngineFallback": "Enabled"

@@ -18,6 +18,7 @@
 #define PAUSE_RECORDING 9
 #define RESUME_RECORDING 10
 #define RESET_WORLD 11
+#define REWARD 12
 
 // Combined/Complex Object Messages 500-1000
 #define CST_CREATE 500
@@ -28,12 +29,19 @@
 #define CST_SET_HAPTIC 505
 #define CST_SET_LAMBDA 506
 #define CST_DATA 507
-#define CUPS_CREATE 508
-#define CUPS_DESTRUCT 509
-#define CUPS_START 510
-#define CUPS_STOP 511
-#define CUPS_DATA 512 
-#define CUPS_RESET 513
+
+#define CUPTASK_CREATE 600
+#define CUPTASK_DESTRUCT 601
+#define CUPTASK_START 602
+#define CUPTASK_STOP 603
+#define CUPTASK_DATA 604 
+#define CUPTASK_RESET 605
+#define CUPTASK_SET_BALL_VISUALS 606
+#define CUPTASK_SET_BALL_HAPTICS 607
+#define CUPTASK_SET_CUP_VISUALS 608
+#define CUPTASK_SET_PATH_CONSTRAINT 609
+#define CUPTASK_SET_COLOR_BALL 610
+#define CUPTASK_SET_COLOR_CUP 611
 
 // Haptics Messages 1000-2000
 #define HAPTIC_DATA_STREAM 1000
@@ -44,7 +52,10 @@
 #define HAPTICS_CONSTANT_FORCE_FIELD 1010
 #define HAPTICS_VISCOSITY_FIELD 1011
 #define HAPTICS_FREEZE_EFFECT 1012
-#define HAPTICS_REMOVE_WORLD_EFFECT 1013
+#define HAPTICS_LINE_CONSTRAINT 1013
+#define HAPTICS_EDGE_STIFFNESS 1014
+#define HAPTICS_IMPULSE_PERT 1015
+#define HAPTICS_REMOVE_WORLD_EFFECT 1016
 
 // Graphics Messages are 2000-3000 
 #define GRAPHICS_SET_ENABLED 2000
@@ -52,6 +63,7 @@
 #define GRAPHICS_PIPE 2002
 #define GRAPHICS_ARROW 2003
 #define GRAPHICS_CHANGE_OBJECT_COLOR 2004
+#define GRAPHICS_SET_OBJECT_LOCALPOS 2005
 #define GRAPHICS_MOVING_DOTS 2014
 #define GRAPHICS_SHAPE_BOX 2046
 #define GRAPHICS_SHAPE_SPHERE 2050
@@ -77,6 +89,11 @@ typedef struct {
   int b; /**< Second test value */
 } M_TEST_PACKET;
 
+
+
+/////////////////////////////////////////////////
+///////////// EXPERIMENT CONTROL ////////////////
+/////////////////////////////////////////////////
 typedef struct {
   MSG_HEADER header;
 } M_SESSION_START;
@@ -127,6 +144,14 @@ typedef struct {
 
 typedef struct {
   MSG_HEADER header;
+  bool release;
+} M_REWARD;
+
+/////////////////////////////////////////////////
+//////////////// CST  MESSAGES //////////////////
+/////////////////////////////////////////////////
+typedef struct {
+  MSG_HEADER header;
   char cstName[MAX_STRING_LENGTH];
   double lambdaVal;
   double forceMagnitude;
@@ -169,46 +194,99 @@ typedef struct {
 
 typedef struct {
   MSG_HEADER header;
+  double time;
   double cursorX;
   double cursorY;
   double cursorZ;
+  double reactionForce;
 } M_CST_DATA;
 
+
+
+/////////////////////////////////////////////////
+///////////// CUP TASK MESSAGES /////////////////
+/////////////////////////////////////////////////
 typedef struct {
   MSG_HEADER header;
-  char cupsName[MAX_STRING_LENGTH];
+  char cupTaskName[MAX_STRING_LENGTH];
   double escapeAngle;
   double pendulumLength;
   double ballMass;
   double cartMass;
-} M_CUPS_CREATE;
+  double ballDamping;
+  double cupDamping;
+} M_CUPTASK_CREATE;
 
 typedef struct  {
   MSG_HEADER header;
-  char cupsName[MAX_STRING_LENGTH];
-} M_CUPS_DESTRUCT;
+  char cupTaskName[MAX_STRING_LENGTH];
+} M_CUPTASK_DESTRUCT;
 
 typedef struct {
   MSG_HEADER header;
-  char cupsName[MAX_STRING_LENGTH];
-} M_CUPS_START;
+  char cupTaskName[MAX_STRING_LENGTH];
+} M_CUPTASK_START;
 
 typedef struct {
   MSG_HEADER header;
-  char cupsName[MAX_STRING_LENGTH];
-} M_CUPS_STOP;
+  char cupTaskName[MAX_STRING_LENGTH];
+} M_CUPTASK_STOP;
 
 typedef struct {
   MSG_HEADER header;
-  double ballAngle; //rsr changed it from ballPos
+  double time;
+  double ballAngle;
+  double ballForce;
+  double interactionForce;
   double cupPos; 
-} M_CUPS_DATA;
+} M_CUPTASK_DATA;
 
 typedef struct {
   MSG_HEADER header;
-  char cupsName[MAX_STRING_LENGTH];
-} M_CUPS_RESET;
+  char cupTaskName[MAX_STRING_LENGTH];
+} M_CUPTASK_RESET;
 
+typedef struct {
+  MSG_HEADER header;
+  char cupTaskName[MAX_STRING_LENGTH];
+  bool visualEnalbed;
+} M_CUPTASK_SET_BALL_VISUALS;
+
+typedef struct {
+  MSG_HEADER header;
+  char cupTaskName[MAX_STRING_LENGTH];
+  bool hapticEnabled;
+} M_CUPTASK_SET_BALL_HAPTICS;
+
+typedef struct {
+  MSG_HEADER header;
+  char cupTaskName[MAX_STRING_LENGTH];
+  bool visualEnalbed;
+} M_CUPTASK_SET_CUP_VISUALS;
+
+typedef struct {
+  MSG_HEADER header;
+  char cupTaskName[MAX_STRING_LENGTH];
+  bool pathConstraintEnabled;
+} M_CUPTASK_SET_PATH_CONSTRAINT;
+
+typedef struct {
+  MSG_HEADER header;
+  char cupTaskName[MAX_STRING_LENGTH];
+  float color[4];
+} M_CUPTASK_SET_COLOR_BALL;
+
+typedef struct {
+  MSG_HEADER header;
+  char cupTaskName[MAX_STRING_LENGTH];
+  float color[4];
+} M_CUPTASK_SET_COLOR_CUP;
+
+
+
+/////////////////////////////////////////////////
+////////////// GENERIC HAPTIC EFFECTS ///////////
+/////////////////////////////////////////////////
 typedef struct {
   MSG_HEADER header;
   double posX;
@@ -243,6 +321,7 @@ typedef struct {
 
 typedef struct {
   MSG_HEADER header;
+  char effectName[MAX_STRING_LENGTH];
   double bWidth;
   double bHeight;
 } M_HAPTICS_BOUNDING_PLANE;
@@ -268,8 +347,42 @@ typedef struct {
 typedef struct {
   MSG_HEADER header;
   char effectName[MAX_STRING_LENGTH];
+  double point1[3];
+  double point2[3];
+  double stifness;
+  double damping;
+} M_HAPTICS_LINE_CONSTRAINT;
+
+typedef struct {
+  MSG_HEADER header;
+  char effectName[MAX_STRING_LENGTH];
+  double height;
+  double width;
+  double depth;
+  double center[3];
+  double stifness;
+  double damping;
+} M_HAPTICS_EDGE_STIFFNESS;
+
+typedef struct {
+  MSG_HEADER header;
+  char effectName[MAX_STRING_LENGTH];
+  double forceVector[3];
+  double impulseDuration;
+  double normalToPlane[3];
+  double pointOnPlane[3];
+} M_HAPTICS_IMPULSE_PERT;
+
+typedef struct {
+  MSG_HEADER header;
+  char effectName[MAX_STRING_LENGTH];
 } M_HAPTICS_REMOVE_WORLD_EFFECT;
 
+
+
+/////////////////////////////////////////////////
+////////////// GENERIC VISUAL EFFECTS ///////////
+/////////////////////////////////////////////////
 typedef struct {
   MSG_HEADER header;
   char objectName[MAX_STRING_LENGTH];
@@ -313,6 +426,12 @@ typedef struct {
   char objectName[MAX_STRING_LENGTH];
   float color[4];
 } M_GRAPHICS_CHANGE_OBJECT_COLOR;
+
+typedef struct {
+  MSG_HEADER header;
+  char objectName[MAX_STRING_LENGTH];
+  double pos[3];
+} M_GRAPHICS_SET_OBJECT_LOCALPOS;
 
 typedef struct {
   MSG_HEADER header;

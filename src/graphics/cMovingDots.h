@@ -1,6 +1,6 @@
 #pragma once
 #include "chai3d.h"
-#include "cGenericMovingObject.h"
+#include "cGenericVisualEffect.h"
 #include <random>
 #include <ctime>
 
@@ -16,7 +16,7 @@
  * Creates a cloud of moving points, where <em> c% </em> of points are moving according to the
  * direction and velocity given, while the remainder of the points move in random directions.
  */
-class cMovingDots : public cGenericMovingObject
+class cMovingDots : public cGenericVisualEffect
 {
   private:
     int numDots;

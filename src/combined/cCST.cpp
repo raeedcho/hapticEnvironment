@@ -10,21 +10,22 @@ extern GraphicsData graphicsData;
  * @param v Set whether visual feedback is enabled
  * @param h Set whether haptic feedback is enabled
  * 
- * Constructor for a CST object. A CST object inherits both from cGenericMovingObject and
+ * Constructor for a CST object. A CST object inherits both from cGenericVisualEffect and
  * cGenericEffect because the CST cursor is a graphical object whose position must be updated at
  * each iteration of the graphical loop. Similarly, cGenericEffect enables haptic feedback
  * rendering.  
  */
-cCST::cCST(cWorld* worldPtr, double l, double f, bool v, bool h):cGenericMovingObject(), cGenericEffect(worldPtr)
+cCST::cCST(cWorld* worldPtr, double l, double f, bool v, bool h):cGenericVisualEffect(), cGenericEffect(worldPtr), cGenericStreamerObject()
 {
   world = worldPtr;
   lambda = l/60 + 1; // rsr. why the /60+1 ?
-  forceMagnitude = f;
+  hapticStiffness = f;
   visionEnabled = v;
   hapticEnabled = h;
   running = false;
   currPos = new cVector3d(0.0, 0.0, 0.0);
-  
+  reactionForce = 0;
+
   // Visual Cursor
   visualCursor = new cShapeSphere(HAPTIC_TOOL_RADIUS);
   visualCursor->m_material->setColorf(0.0, 0.75, 1.0, 1.0);
@@ -34,6 +35,7 @@ cCST::cCST(cWorld* worldPtr, double l, double f, bool v, bool h):cGenericMovingO
   
   // Clock to prevent updates from happening too quickly
   cstClock = new cPrecisionClock();
+  cstClock->reset(0);
   lastUpdateTime = 0.0;
 }
 
@@ -56,28 +58,6 @@ cVector3d* cCST::computeNextPosition(cVector3d toolPos)
     currPos->y(nextPos->y());
     lastUpdateTime = cstTime;
     
-    M_CST_DATA cstData;
-    memset(&cstData, 0, sizeof(cstData));
-    auto packetIdx = controlData.client->async_call("getMsgNum");
-    auto timestamp = controlData.client->async_call("getTimestamp");
-    packetIdx.wait();
-    timestamp.wait();
-    int packetNum = packetIdx.get().as<int>();
-    double currTime = timestamp.get().as<double>();
-    cstData.header.serial_no = packetNum;
-    cstData.header.msg_type = CST_DATA;
-    cstData.header.timestamp = currTime;
-    cstData.cursorX = currPos->x();
-    cstData.cursorY = currPos->y();
-    cstData.cursorZ = currPos->z();
-    char packet[sizeof(cstData)];
-    memcpy(&packet, &cstData, sizeof(cstData));
-    vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
-    auto cstInt = controlData.client->async_call("sendMessage", packetData, sizeof(cstData), controlData.MODULE_NUM);    
-    //sendPacket((char *) packet, sizeof(cstData), false);
-    usleep(1000);
-    cstInt.wait();
-    auto cstNum = cstInt.get().as<int>();
     return nextPos;
   }
   else {
@@ -98,12 +78,11 @@ cVector3d* cCST::computeNextPosition(cVector3d toolPos)
 bool cCST::computeForce(const cVector3d& a_toolPos, const cVector3d& a_toolVel,
                   const unsigned int& a_toolID, cVector3d& a_reactionForce)
 {
-  // usleep(1000); // rsr. force is update at 1kHz?
   if (hapticEnabled == true && running == true) {
     cVector3d* nextPos = cCST::computeNextPosition(a_toolPos);
     double deltaY = nextPos->y() - a_toolPos.y();
-    // double forceMark = (forceMagnitude * (hapticsData.maxForce) * (nextPos->y()/200) + 0.0);
-    double forceMark = (forceMagnitude * deltaY ); //rsr. changed it to spring-like
+    // double forceMark = (hapticStiffness * (hapticsData.maxForce) * (nextPos->y()/200) + 0.0);
+    double forceMark = (hapticStiffness * deltaY ); //rsr. changed it to act like a spring between cursor and hand. 
     if (forceMark > hapticsData.maxForce) {
       a_reactionForce.y(hapticsData.maxForce);
     }
@@ -113,10 +92,12 @@ bool cCST::computeForce(const cVector3d& a_toolPos, const cVector3d& a_toolVel,
     else {
       a_reactionForce.y(forceMark);
     }
+    reactionForce = a_reactionForce.y();
     return true;
   }
   else {
     a_reactionForce.zero();
+    reactionForce = a_reactionForce.y();
     return false;
   }
 }
@@ -126,7 +107,7 @@ bool cCST::computeForce(const cVector3d& a_toolPos, const cVector3d& a_toolVel,
  * @param toolPos Position of the haptic tool 
  * @param toolVel Velocity of the haptic tool 
  *
- * Since the CST cursor is a moving object and inherits from cGenericMovingObject, it must override
+ * Since the CST cursor is a moving object and inherits from cGenericVisualEffect, it must override
  * this function. This function updates the graphical rendering of the CST cursor based on the
  * position computed by the computeNextPosition function.
  */
@@ -138,7 +119,6 @@ void cCST::graphicsLoopFunction(double dt, cVector3d toolPos, cVector3d toolVel)
     }
     cVector3d* nextPos = cCST::computeNextPosition(toolPos);
     visualCursor->setLocalPos(0.0, currPos->y(), 0.0);
-    //rsr, this loop probably runs at 60Hz. Todo: check this. Todo: make timing more controlled by separating graphics from physics (perhaps move ODE equation to the haptics loop that runs much faster)
   }
 }
 
@@ -191,6 +171,7 @@ bool cCST::setLambda(double l)
 void cCST::startCST()
 {
   running = true;
+  cstClock->reset(0);
   cstClock->start();
   lastUpdateTime = cstClock->getCurrentTimeSeconds();
 }
@@ -205,10 +186,11 @@ void cCST::stopCST()
     visualCursor->setEnabled(false);
   }
   cstClock->stop();
-  cstClock->reset();
+  cstClock->reset(0);
   currPos->x(0.0);
   currPos->y(0.0);
   currPos->z(0.0);
+  reactionForce = 0;
 }
 
 /**
@@ -218,4 +200,21 @@ void cCST::stopCST()
 void cCST::destructCST()
 {
   world->deleteChild(visualCursor);
+}
+
+void cCST::sendData()
+{
+  M_CST_DATA cstData;
+  memset(&cstData, 0, sizeof(cstData));
+  cstData.header = createMesssageHeader(CST_DATA);
+  cstData.time = cstClock->getCurrentTimeSeconds();
+  cstData.cursorX = currPos->x();
+  cstData.cursorY = currPos->y();
+  cstData.cursorZ = currPos->z();
+  cstData.reactionForce = reactionForce;
+  char packet[sizeof(cstData)];
+  memcpy(&packet, &cstData, sizeof(cstData));
+  vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
+  auto results = controlData.client->async_call("sendMessage", packetData, sizeof(cstData), controlData.MODULE_NUM);    
+  results.wait();
 }

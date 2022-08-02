@@ -12,9 +12,9 @@
  */
 
 
-extern HapticData hapticsData; // rsr. extern tells the compiler it is defined in another module. Linker finds this variable points to it. It's like a global variable. HaptidData is defined in haptics.h
-extern GraphicsData graphicsData;
-ControlData controlData; // rsr. control data is defined in controller.h, included above
+extern HapticData hapticsData; // HaptidData is defined in haptics.h. Keeps track of objects that have haptic (force) effects
+extern GraphicsData graphicsData; // GraphicsData is defined in graphics.h. Keeps track of objects that have special viual effects
+ControlData controlData; // ControlData is defined in controller.h. Keeps track of high-level variables
 
 
 /////////////////////////////////////////////////////
@@ -32,15 +32,10 @@ int main(int argc, char* argv[])
   cout << "[q] - Exit application" << endl;
   cout << endl << endl;
   
-  atexit(close); //rsr. close() is the "exit" function that is called when the program ends.
-  
-  const char* MODULE_IP;
-  int MODULE_PORT;
-  const char* MH_IP;
-  int MH_PORT;
+  atexit(close); 
 
 
-  // rsr. controlData is a structure containing high-level information about the flow of the program
+  // ControlData is a structure containing high-level information about the flow of the program
   controlData.simulationRunning = false;
   controlData.simulationFinished = true;
   controlData.hapticsUp = false;
@@ -48,9 +43,8 @@ int main(int argc, char* argv[])
   controlData.streamerUp = false;
   controlData.loggingData = false;
 
+
   // TODO: Set these IP addresses from a config file
-  //controlData.LISTENER_IP = "127.0.0.1";
-  //controlData.LISTENER_PORT = 7000;
   controlData.MODULE_NUM = 1;
   if (argc < 2) {
     controlData.IPADDR = "127.0.0.1";
@@ -69,42 +63,41 @@ int main(int argc, char* argv[])
     controlData.MH_PORT = atoi(argv[4]);
   }
 
-  // rsr. this is a clinet for the RPC server (being the messageHandler app). The client sends function call requests to the server to run and waits for the return value
+  // This program is a "client" of messageHandler. All communications with other programs is via MH. 
+  // This clinet sends "remote prodecure call" requests to the server (MH) to request timestamp or broadcast a message.
   controlData.client = new rpc::client(controlData.MH_IP, controlData.MH_PORT);
-  //controlData.SENDER_IPS.push_back("127.0.0.1");
-  //controlData.SENDER_IPS.push_back("127.0.0.1");
-  //controlData.SENDER_PORTS.push_back(9000);
-  //controlData.SENDER_PORTS.push_back(10000);
   
 
-  
-  controlData.hapticsOnly = false;
-  if (controlData.hapticsOnly == false) {
-    initDisplay(); //rsr. initializes glfw window. construct the global variable graphicsData. 
-    initScene(); //rsr. initializes the chai3d world, camera, light. puts them in graphicsData
-    // resizeWindowCallback(graphicsData.window, graphicsData.width, graphicsData.height); //rsr. didn't seem necessary
-  }
-  
-  initHaptics(); //rsr. initializes the haptic device. contructs the global variable hapticsData. 
-  startHapticsThread(); //rsr. creates a new thread to run the haptics loop. simulation starts here
-  usleep(2e5);
+  // "World" is where all action take place. All objects and haptic effects are added to this world.
+  controlData.world = new cWorld(); 
 
-  openMessagingSocket(); //rsr. from network.h. The socker is used to listen to incomming UDP messages sent by messageHandler. The listenerThread listens to incoming messages
-  int addSuccess = addMessageHandlerModule(); //rsr. adds this program as module#1 to the messageHandler
+
+  initDisplay(); // Initializes glfw window. construct the global variable graphicsData. 
+  initScene(); // Initializes the camera, lights. puts them in graphicsData
+
+  initHaptics(); // Initializes the haptic device. Contructs the global variable hapticsData. 
+  startHapticsThread(); // Creates a new thread to run the haptics loop. Haptic simulation starts here
+  
+  cSleepMs(200);
+
+
+  openMessagingSocket(); // Opens a UDP socket to listen to messages broadcasted by messageHandler
+  int addSuccess = addMessageHandlerModule(); // Adds this program as module#1 to the messageHandler
   if (addSuccess == 0) {
     cout << "Module addition failed" << endl;
     close();
     exit(1);
   }
-  usleep(1e5);
-  int subscribeSuccess = subscribeToTrialControl(); //rsr. subscribing to the "trialController", so that the messages requested by trialController are sent to module#1's socket
+  cSleepMs(100);
+  int subscribeSuccess = subscribeToTrialControl(); // Subscribing to the "trialController", so that the messages broadcasted by trialController are sent to module#1 as well
   if (subscribeSuccess == 0) {
     cout << "Subcribe to Trial Control failed" << endl;
     close();
     exit(1);
   }
 
-  //rsr added to subscribe to my own message requests
+  // To subscribe to my own message requests so when I broadcast a message I receive a copy of it back. For quick development purposes only. These line can be deleted.
+  // To be deleted by Raeed.
   bool subscribed = false;
   while (subscribed == false) {
     auto subscribe = controlData.client->async_call("subscribeTo", controlData.MODULE_NUM, controlData.MODULE_NUM);
@@ -115,12 +108,13 @@ int main(int argc, char* argv[])
     }
   }
       
-  usleep(1e5);
-  startStreamerThread(); // rsr. starts a new thread to read pos/force/etc from the robot. for the streamer pointed by controlData.streamerThread
-  startListenerThread(); // rsr. starts a new thread to listen to messageHandler?! there is a difference between streamer and listener. 
+  cSleepMs(100);
+
+  startStreamerThread(); // Starts a new thread to stream out robot data. messages are broadcased via messageHandler to whoever wants to listen
+  startListenerThread(); // Starts a new thread to listen to the incoming messages sent by the messageHandler
   cout << "streamer and listener started" << endl;
 
-  startGraphicsLoop(); //rsr. starts the main thread: a loop that updates graphics. code stucks here until the end of program
+  startGraphicsLoop(); //Starts the "main thread": a loop that updates graphics. code stucks here until the end of program
 
   return(0);
 }
@@ -141,7 +135,7 @@ bool allThreadsDown()
  */
 void close()
 {
-  controlData.simulationRunning = false; //rsr. this stops haptic/listener/streamer loops. they all depend on this
+  controlData.simulationRunning = false; // All threads haptic/listener/streamer/graphics rely on this
   while (!controlData.simulationFinished) {
     controlData.simulationFinished = allThreadsDown();
     cSleepMs(100);
@@ -150,14 +144,14 @@ void close()
   cout << "Haptic tool stopped" << endl;
   delete hapticsData.hapticsThread;
   cout << "Deleted haptics thread" << endl;
-  delete graphicsData.world;
+  delete controlData.world;
   cout << "Deleted world" << endl;
   delete hapticsData.handler;
   cout << "Deleted handler" << endl;
   closeMessagingSocket();
-  graphicsData.world->deleteAllChildren();
+  controlData.world->deleteAllChildren();
   
-  glfwDestroyWindow(graphicsData.window); // rsr. moved from main function to here
+  glfwDestroyWindow(graphicsData.window); 
   glfwTerminate();
 
 }
@@ -172,9 +166,12 @@ void parsePacket(char* packet)
   MSG_HEADER header;
   memcpy(&header, packet, sizeof(header));
   int msgType = header.msg_type;
+  // cout<<msgType<< ", time stamp: " << fixed << header.timestamp << endl;;
   switch (msgType)
   {
-    /////////////////////// GENERAL MESSEGES /////////////
+    /////////////////////////////////////////////////
+    ///////////// EXPERIMENT CONTROL ////////////////
+    /////////////////////////////////////////////////
     case SESSION_START:
     {
       cout << "Received SESSION_START Message" << endl;
@@ -232,7 +229,7 @@ void parsePacket(char* packet)
       }
       else {
         cGenericObject* objPtr = controlData.objectMap[rmObj.objectName];
-        graphicsData.world->deleteChild(objPtr);
+        controlData.world->deleteChild(objPtr);
         controlData.objectMap.erase(rmObj.objectName);
       }
       break;
@@ -243,34 +240,45 @@ void parsePacket(char* packet)
       cout << "Received RESET_WORLD Message" << endl;
       unordered_map<string, cGenericObject*>::iterator objIt = controlData.objectMap.begin();
       while (objIt != controlData.objectMap.end()) {
-        bool removedObj = graphicsData.world->deleteChild(objIt->second);
+        bool removedObj = controlData.world->deleteChild(objIt->second);
         objIt++;
       }
-      unordered_map<string, cGenericEffect*>::iterator effIt = controlData.worldEffects.begin();
-      while (effIt != controlData.worldEffects.end()) {
-        bool removedEffect = graphicsData.world->removeEffect(effIt->second);
+      unordered_map<string, cGenericEffect*>::iterator effIt = hapticsData.hapticEffectsMap.begin();
+      while (effIt != hapticsData.hapticEffectsMap.end()) {
+        bool removedEffect = controlData.world->removeEffect(effIt->second);
         effIt++;
       }
       controlData.objectMap.clear();
-      controlData.objectEffects.clear();
-      controlData.worldEffects.clear();
+      // controlData.objectEffects.clear();
+      hapticsData.hapticEffectsMap.clear();
       break;
     }
 
 
-    /////////////////////// CST MESSEGES /////////////
+    /////////////////////////////////////////////////
+    //////////////// CST  MESSAGES //////////////////
+    /////////////////////////////////////////////////
     case CST_CREATE:
     {
       cout << "Received CST_CREATE Message" << endl;
       M_CST_CREATE cstObj;
       memcpy(&cstObj, packet, sizeof(cstObj));
-      cCST* cst = new cCST(graphicsData.world, cstObj.lambdaVal, 
-          cstObj.forceMagnitude, cstObj.visionEnabled, cstObj.hapticEnabled);
       char* cstName = cstObj.cstName;
-      controlData.objectMap[cstName] = cst;
-      graphicsData.movingObjects.push_back(cst);
-      graphicsData.world->addEffect(cst);
-      controlData.worldEffects[cstName] = cst;
+      if (controlData.objectMap.find(cstName) != controlData.objectMap.end()) {
+        cout << "Task with name '" << cstName << "' already exists. Give the task a unique name." << endl;
+        cout << "list of exsting objects: "; 
+        for(auto it:controlData.objectMap) cout<<it.first<< ", ";
+        cout<<endl;
+      }
+      else {
+        cCST* cst = new cCST(controlData.world, cstObj.lambdaVal, 
+            cstObj.forceMagnitude, cstObj.visionEnabled, cstObj.hapticEnabled);
+        controlData.objectMap[cstName] = cst;
+        graphicsData.visualEffectsList.push_back(cst);
+        controlData.world->addEffect(cst);
+        hapticsData.hapticEffectsMap[cstName] = cst;
+        controlData.dataStreamersList.push_back(cst);
+      }
       break;
     }
     case CST_DESTRUCT:
@@ -285,10 +293,12 @@ void parsePacket(char* packet)
         cCST* cst = dynamic_cast<cCST*>(controlData.objectMap[cstObj.cstName]);
         cst->stopCST();
         cst->destructCST();
-        remove(graphicsData.movingObjects.begin(), graphicsData.movingObjects.end(), cst);
-        controlData.worldEffects.erase(cstObj.cstName);
-        bool removedCST = graphicsData.world->removeEffect(cst);
-        //rsr. why isn't cst removed from objectMap? it still stays there...
+        graphicsData.visualEffectsList.erase(find(graphicsData.visualEffectsList.begin(), graphicsData.visualEffectsList.end(), cst));
+        controlData.dataStreamersList.erase(find(controlData.dataStreamersList.begin(), controlData.dataStreamersList.end(), cst));
+        hapticsData.hapticEffectsMap.erase(cstObj.cstName);
+        controlData.objectMap.erase(cstObj.cstName);
+        controlData.world->removeEffect(cst);
+
       }
       break;
     }
@@ -298,7 +308,7 @@ void parsePacket(char* packet)
       M_CST_START cstObj;
       memcpy(&cstObj, packet, sizeof(cstObj));
       cCST* cst = dynamic_cast<cCST*>(controlData.objectMap[cstObj.cstName]);
-      hapticsData.tool->setShowEnabled(false); //rsr. tool disapears. cst visual is visible
+      hapticsData.tool->setShowEnabled(false); 
       cst->startCST();
       break;
     }
@@ -309,7 +319,7 @@ void parsePacket(char* packet)
       memcpy(&cstObj, packet, sizeof(cstObj));
       cCST* cst = dynamic_cast<cCST*>(controlData.objectMap[cstObj.cstName]);
       cst->stopCST();
-      hapticsData.tool->setShowEnabled(true); //rsr. tool is visible again
+      hapticsData.tool->setShowEnabled(true); 
       break;
     }
     case CST_SET_VISUAL:
@@ -343,73 +353,149 @@ void parsePacket(char* packet)
       break;
     }
 
-
-
-    /////////////////////// CUP TASK MESSEGES /////////////
-    case CUPS_CREATE:
+    /////////////////////////////////////////////////
+    ///////////// CUP TASK MESSAGES /////////////////
+    /////////////////////////////////////////////////
+    case CUPTASK_CREATE:
     {
-      cout << "Received CUPS_CREATE Message" << endl;
-      M_CUPS_CREATE createCups;
-      memcpy(&createCups, packet, sizeof(createCups));
-      cCups* cups = new cCups(graphicsData.world, createCups.escapeAngle, 
-          createCups.pendulumLength, createCups.ballMass, createCups.cartMass);
-      char* cupsName = createCups.cupsName;
-      controlData.objectMap[cupsName] = cups;
-      graphicsData.movingObjects.push_back(cups);
-      graphicsData.world->addEffect(cups);
-      controlData.worldEffects[cupsName] = cups;
-      break;
-    }
-    case CUPS_DESTRUCT:
-    {
-      cout << "Received CUPS_DESTRUCT Message" << endl;
-      M_CUPS_DESTRUCT cupsObj;
-      memcpy(&cupsObj, packet, sizeof(cupsObj));
-      if (controlData.objectMap.find(cupsObj.cupsName) == controlData.objectMap.end()) {
-        cout << cupsObj.cupsName << " not found" << endl;
+      cout << "Received CUPTASK_CREATE Message" << endl;
+      M_CUPTASK_CREATE msg;
+      memcpy(&msg, packet, sizeof(msg));
+      char* cupTaskName = msg.cupTaskName;
+      if (controlData.objectMap.find(cupTaskName) != controlData.objectMap.end()) {
+        cout << "Task with name '" << cupTaskName << "' already exists. Give the task a unique name." << endl;
+        cout << "list of exsting objects: "; 
+        for(auto it:controlData.objectMap) cout<<it.first<< ", ";
+        cout<<endl;        
       }
       else {
-        cCups* cups = dynamic_cast<cCups*>(controlData.objectMap[cupsObj.cupsName]);
-        cups->stopCups();
-        cups->destructCups();
-        remove(graphicsData.movingObjects.begin(), graphicsData.movingObjects.end(), cups);
-        controlData.worldEffects.erase(cupsObj.cupsName);
-        bool removedCups = graphicsData.world->removeEffect(cups);
+        cCupAndBall* cnb = new cCupAndBall(controlData.world, msg.escapeAngle, 
+            msg.pendulumLength, msg.ballMass, msg.cartMass,
+            msg.ballDamping, msg.cupDamping);
+        controlData.objectMap[cupTaskName] = cnb;
+        controlData.dataStreamersList.push_back(cnb);
+        graphicsData.visualEffectsList.push_back(cnb);
+        controlData.world->addEffect(cnb);
+        hapticsData.hapticEffectsMap[cupTaskName] = cnb;
+        hapticsData.tool->setShowEnabled(false);
       }
       break;
     }
-    case CUPS_START:
+
+    case CUPTASK_DESTRUCT:
     {
-      cout << "Received CUPS_START Message" << endl;
-      M_CUPS_START cupsObj;
-      memcpy(&cupsObj, packet, sizeof(cupsObj));
-      cCups* cups = dynamic_cast<cCups*>(controlData.objectMap[cupsObj.cupsName]);
-      hapticsData.tool->setShowEnabled(false);
-      cups->startCups();
+      cout << "Received CUPTASK_DESTRUCT Message" << endl;
+      M_CUPTASK_DESTRUCT msg;
+      memcpy(&msg, packet, sizeof(msg));
+      if (controlData.objectMap.find(msg.cupTaskName) == controlData.objectMap.end()) {
+        cout << msg.cupTaskName << " not found" << endl;
+      }
+      else {
+        cCupAndBall* cnb = dynamic_cast<cCupAndBall*>(controlData.objectMap[msg.cupTaskName]);
+        cnb->stopCupAndBall();
+        cnb->destructCupAndBall();
+        graphicsData.visualEffectsList.erase(find(graphicsData.visualEffectsList.begin(), graphicsData.visualEffectsList.end(), cnb));
+        controlData.dataStreamersList.erase(find(controlData.dataStreamersList.begin(), controlData.dataStreamersList.end(), cnb));
+        hapticsData.hapticEffectsMap.erase(msg.cupTaskName);
+        controlData.objectMap.erase(msg.cupTaskName);
+        controlData.world->removeEffect(cnb);
+        hapticsData.tool->setShowEnabled(true);
+      }
+      break;           
+    }
+
+    case CUPTASK_START:
+    {
+      cout << "Received CUPTASK_START Message" << endl;
+      M_CUPTASK_START msg;
+      memcpy(&msg, packet, sizeof(msg));
+      cCupAndBall* cnb = dynamic_cast<cCupAndBall*>(controlData.objectMap[msg.cupTaskName]);
+      cnb->startCupAndBall();
       break;
     }
-    case CUPS_STOP:
+    case CUPTASK_STOP:
     {
-      cout << "Received CUPS_STOP Message" << endl;
-      M_CUPS_STOP cupsObj;
-      memcpy(&cupsObj, packet, sizeof(cupsObj));
-      cCups* cups = dynamic_cast<cCups*>(controlData.objectMap[cupsObj.cupsName]);
-      cups->stopCups();
-      hapticsData.tool->setShowEnabled(true);
+      cout << "Received CUPTASK_STOP Message" << endl;
+      M_CUPTASK_STOP msg;
+      memcpy(&msg, packet, sizeof(msg));
+      cCupAndBall* cnb = dynamic_cast<cCupAndBall*>(controlData.objectMap[msg.cupTaskName]);
+      cnb->stopCupAndBall();
       break;
     }
 
-    case CUPS_RESET:
+    case CUPTASK_RESET:
     {
-      cout << "Received CUPS_RESET Message" << endl;
-      M_CUPS_RESET cupsObj;
-      memcpy(&cupsObj, packet, sizeof(cupsObj));
-      cCups* cups = dynamic_cast<cCups*>(controlData.objectMap[cupsObj.cupsName]);
-      cups->resetCups();
+      cout << "Received CUPTASK_RESET Message" << endl;
+      M_CUPTASK_RESET msg;
+      memcpy(&msg, packet, sizeof(msg));
+      cCupAndBall* cnb = dynamic_cast<cCupAndBall*>(controlData.objectMap[msg.cupTaskName]);
+      cnb->resetCupAndBall();
       break;
     }
 
-    // OTHER GENERAL MESSAGES
+    case CUPTASK_SET_BALL_VISUALS:
+    {
+      cout << "Received CUPTASK_SET_BALL_VISUALS Message" << endl;
+      M_CUPTASK_SET_BALL_VISUALS msg;
+      memcpy(&msg, packet, sizeof(msg));
+      cCupAndBall* cnb = dynamic_cast<cCupAndBall*>(controlData.objectMap[msg.cupTaskName]);
+      cnb->setEnableBallVisuals(!cnb->getEnableBallVisuals());
+      break;
+    }
+
+    case CUPTASK_SET_BALL_HAPTICS:
+    {
+      cout << "Received CUPTASK_SET_BALL_HAPTICS Message" << endl;
+      M_CUPTASK_SET_BALL_HAPTICS msg;
+      memcpy(&msg, packet, sizeof(msg));
+      cCupAndBall* cnb = dynamic_cast<cCupAndBall*>(controlData.objectMap[msg.cupTaskName]);
+      cnb->setEnableBallHaptics(!cnb->getEnableBallHaptics());
+      break;
+    }
+
+    case CUPTASK_SET_CUP_VISUALS:
+    {
+      cout << "Received CUPTASK_SET_CUP_VISUALS Message" << endl;
+      M_CUPTASK_SET_CUP_VISUALS msg;
+      memcpy(&msg, packet, sizeof(msg));
+      cCupAndBall* cnb = dynamic_cast<cCupAndBall*>(controlData.objectMap[msg.cupTaskName]);
+      cnb->setEnableCupVisuals(!cnb->getEnableCupVisuals());
+      break;
+    }
+
+    case CUPTASK_SET_PATH_CONSTRAINT:
+    {
+      cout << "Received CUPTASK_SET_PATH_CONSTRAINT Message" << endl;
+      M_CUPTASK_SET_PATH_CONSTRAINT msg;
+      memcpy(&msg, packet, sizeof(msg));
+      cCupAndBall* cnb = dynamic_cast<cCupAndBall*>(controlData.objectMap[msg.cupTaskName]);
+      cnb->setEnablePathConstraint(!cnb->getEnablePathConstraint());
+      break;
+    }
+
+    case CUPTASK_SET_COLOR_BALL:
+    {
+      cout << "Received CUPTASK_SET_COLOR_BALL Message" << endl;
+      M_CUPTASK_SET_COLOR_BALL msg;
+      memcpy(&msg, packet, sizeof(msg));
+      cCupAndBall* cnb = dynamic_cast<cCupAndBall*>(controlData.objectMap[msg.cupTaskName]);
+      cnb->setColorBall(msg.color[0], msg.color[1], msg.color[2], msg.color[3]);
+      break;
+    }
+
+    case CUPTASK_SET_COLOR_CUP:
+    {
+      cout << "Received CUPTASK_SET_COLOR_CUP Message" << endl;
+      M_CUPTASK_SET_COLOR_CUP msg;
+      memcpy(&msg, packet, sizeof(msg));
+      cCupAndBall* cnb = dynamic_cast<cCupAndBall*>(controlData.objectMap[msg.cupTaskName]);
+      cnb->setColorCup(msg.color[0], msg.color[1], msg.color[2], msg.color[3]);
+      break;
+    }
+
+    /////////////////////////////////////////////////
+    ////////////// GENERIC HAPTIC EFFECTS ///////////
+    /////////////////////////////////////////////////
     case HAPTICS_SET_ENABLED:
     {
       cout << "Received HAPTICS_SET_ENABLED Message" << endl;
@@ -437,7 +523,7 @@ void parsePacket(char* packet)
       memcpy(&worldEnabled, packet, sizeof(worldEnabled));
       char* effectName;
       effectName = worldEnabled.effectName;
-      cGenericEffect* fieldEffect = controlData.worldEffects[effectName];
+      cGenericEffect* fieldEffect = hapticsData.hapticEffectsMap[effectName];
       fieldEffect->setEnabled(worldEnabled.enabled);
       break; 
     }
@@ -463,18 +549,26 @@ void parsePacket(char* packet)
       cout << "Received HAPTICS_BOUNDING_PLANE Message" << endl;
       M_HAPTICS_BOUNDING_PLANE bpMsg;
       memcpy(&bpMsg, packet, sizeof(bpMsg));
-      double bWidth = bpMsg.bWidth;
-      double bHeight = bpMsg.bHeight;
-      int stiffness = hapticsData.hapticDeviceInfo.m_maxLinearStiffness;
-      double toolRadius = hapticsData.toolRadius;
-      cBoundingPlane* bp = new cBoundingPlane(stiffness, toolRadius, bWidth, bHeight);
-      graphicsData.world->addChild(bp->getLowerBoundingPlane());
-      graphicsData.world->addChild(bp->getUpperBoundingPlane());
-      graphicsData.world->addChild(bp->getTopBoundingPlane());
-      graphicsData.world->addChild(bp->getBottomBoundingPlane());
-      graphicsData.world->addChild(bp->getLeftBoundingPlane());
-      graphicsData.world->addChild(bp->getRightBoundingPlane());
-      controlData.objectMap["boundingPlane"] = bp;
+      if (controlData.objectMap.find(bpMsg.effectName) != controlData.objectMap.end()) {
+        cout << "Effect with name '" << bpMsg.effectName << "' already exists. Give it a unique name." << endl;
+        cout << "list of exsting effects: "; 
+        for(auto it:controlData.objectMap) cout<<it.first<< ", ";
+        cout<<endl;        
+      }
+      else{  
+        double bWidth = bpMsg.bWidth;
+        double bHeight = bpMsg.bHeight;
+        int stiffness = hapticsData.hapticDeviceInfo.m_maxLinearStiffness;
+        double toolRadius = hapticsData.toolRadius;
+        cBoundingPlane* bp = new cBoundingPlane(stiffness, toolRadius, bWidth, bHeight);
+        controlData.world->addChild(bp->getLowerBoundingPlane());
+        controlData.world->addChild(bp->getUpperBoundingPlane());
+        controlData.world->addChild(bp->getTopBoundingPlane());
+        controlData.world->addChild(bp->getBottomBoundingPlane());
+        controlData.world->addChild(bp->getLeftBoundingPlane());
+        controlData.world->addChild(bp->getRightBoundingPlane());
+        controlData.objectMap[bpMsg.effectName] = bp;
+      }
       break;
     }
     
@@ -483,11 +577,19 @@ void parsePacket(char* packet)
       cout << "Received HAPTICS_CONSTANT_FORCE_FIELD Message" << endl;
       M_HAPTICS_CONSTANT_FORCE_FIELD cffInfo;
       memcpy(&cffInfo, packet, sizeof(cffInfo));
-      double d = cffInfo.direction;
-      double m = cffInfo.magnitude;
-      cConstantForceFieldEffect* cFF = new cConstantForceFieldEffect(graphicsData.world, d, m);
-      graphicsData.world->addEffect(cFF);
-      controlData.worldEffects[cffInfo.effectName] = cFF;
+      if (hapticsData.hapticEffectsMap.find(cffInfo.effectName) != hapticsData.hapticEffectsMap.end()) {
+        cout << "Effect with name '" << cffInfo.effectName << "' already exists. Give it a unique name." << endl;
+        cout << "list of exsting effects: "; 
+        for(auto it:hapticsData.hapticEffectsMap) cout<<it.first<< ", ";
+        cout<<endl;        
+      }
+      else{  
+        double d = cffInfo.direction;
+        double m = cffInfo.magnitude;
+        cConstantForceFieldEffect* cFF = new cConstantForceFieldEffect(controlData.world, d, m);
+        controlData.world->addEffect(cFF);
+        hapticsData.hapticEffectsMap[cffInfo.effectName] = cFF;
+      }
       break;
     }
 
@@ -499,9 +601,9 @@ void parsePacket(char* packet)
       cMatrix3d* B = new cMatrix3d(vF.viscosityMatrix[0], vF.viscosityMatrix[1], vF.viscosityMatrix[2],
                                    vF.viscosityMatrix[3], vF.viscosityMatrix[4], vF.viscosityMatrix[5],
                                    vF.viscosityMatrix[6], vF.viscosityMatrix[7], vF.viscosityMatrix[8]);
-      cViscosityEffect* vFF = new cViscosityEffect(graphicsData.world, B);
-      graphicsData.world->addEffect(vFF);
-      controlData.worldEffects[vF.effectName] = vFF;
+      cViscosityEffect* vFF = new cViscosityEffect(controlData.world, B);
+      controlData.world->addEffect(vFF);
+      hapticsData.hapticEffectsMap[vF.effectName] = vFF;
       break;
     }
     
@@ -513,23 +615,93 @@ void parsePacket(char* packet)
       double workspaceScaleFactor = hapticsData.tool->getWorkspaceScaleFactor();
       double maxStiffness = 1.5*hapticsData.hapticDeviceInfo.m_maxLinearStiffness/workspaceScaleFactor;
       cVector3d currentPos = hapticsData.tool->getDeviceGlobalPos();
-      cFreezeEffect* freezeEff = new cFreezeEffect(graphicsData.world, maxStiffness, currentPos);
-      graphicsData.world->addEffect(freezeEff);
-      controlData.worldEffects[freeze.effectName] = freezeEff;
+      cFreezeEffect* freezeEff = new cFreezeEffect(controlData.world, maxStiffness, currentPos);
+      controlData.world->addEffect(freezeEff);
+      hapticsData.hapticEffectsMap[freeze.effectName] = freezeEff;
       break;  
     }
+
+    case HAPTICS_LINE_CONSTRAINT:
+    {
+      cout << "Received HAPTICS_LINE_CONSTRAINT Message" << endl;
+      M_HAPTICS_LINE_CONSTRAINT msg;
+      memcpy(&msg, packet, sizeof(msg));
+      if (hapticsData.hapticEffectsMap.find(msg.effectName) != hapticsData.hapticEffectsMap.end()) {
+        cout << "Effect with name '" << msg.effectName << "' already exists. Give it a unique name." << endl;
+        cout << "list of exsting effects: "; 
+        for(auto it:hapticsData.hapticEffectsMap) cout<<it.first<< ", ";
+        cout<<endl;        
+      }
+      else{        
+        cVector3d* point1 = new cVector3d(msg.point1[0],msg.point1[1],msg.point1[2]);
+        cVector3d* point2 = new cVector3d(msg.point2[0],msg.point2[1],msg.point2[2]);
+        cConstrainToLine* lineEffect = new cConstrainToLine(controlData.world, point1, point2, msg.stifness, msg.damping);
+        lineEffect->setEnabled(true); 
+        controlData.world->addEffect(lineEffect);
+        hapticsData.hapticEffectsMap[msg.effectName] = lineEffect;
+      }
+      break;  
+    }
+
+    case HAPTICS_EDGE_STIFFNESS:
+    {
+      cout << "Received HAPTICS_EDGE_STIFFNESS Message" << endl;
+      M_HAPTICS_EDGE_STIFFNESS msg;
+      memcpy(&msg, packet, sizeof(msg));
+      if (hapticsData.hapticEffectsMap.find(msg.effectName) != hapticsData.hapticEffectsMap.end()) {
+        cout << "Effect with name '" << msg.effectName << "' already exists. Give it a unique name." << endl;
+        cout << "list of exsting effects: "; 
+        for(auto it:hapticsData.hapticEffectsMap) cout<<it.first<< ", ";
+        cout<<endl;        
+      }
+      else{        
+        cEdgeStiffness* edgeStiffness = new cEdgeStiffness(controlData.world, msg.center[0],msg.center[1], msg.center[2], 
+                      msg.width, msg.height, msg.depth, msg.stifness, msg.damping);
+        edgeStiffness->setEnabled(true); 
+        hapticsData.hapticEffectsMap[msg.effectName] = edgeStiffness;
+      }
+      break;  
+    }    
+
+    case HAPTICS_IMPULSE_PERT:
+    {
+      cout << "Received HAPTICS_IMPULSE_PERT Message" << endl;
+      M_HAPTICS_IMPULSE_PERT msg;
+      memcpy(&msg, packet, sizeof(msg));
+      if (hapticsData.hapticEffectsMap.find(msg.effectName) != hapticsData.hapticEffectsMap.end()) {
+        cout << "Effect with name '" << msg.effectName << "' already exists. Give it a unique name." << endl;
+        cout << "list of exsting effects: "; 
+        for(auto it:hapticsData.hapticEffectsMap) cout<<it.first<< ", ";
+        cout<<endl;        
+      }
+      else{        
+        cVector3d* F = new cVector3d(msg.forceVector[0],msg.forceVector[1], msg.forceVector[2]);
+        double d = msg.impulseDuration;
+        cVector3d* N = new cVector3d(msg.normalToPlane[0],msg.normalToPlane[1], msg.normalToPlane[2]);
+        cVector3d* P = new cVector3d(msg.pointOnPlane[0],msg.pointOnPlane[1], msg.pointOnPlane[2]);
+        cImpulsePerturbation* pert = new cImpulsePerturbation(controlData.world, F, d, P, N);
+        pert->setEnabled(true); 
+        controlData.world->addEffect(pert);
+        hapticsData.hapticEffectsMap[msg.effectName] = pert;
+      }
+      break;  
+    } 
 
     case HAPTICS_REMOVE_WORLD_EFFECT:
     {
       cout << "Received HAPTICS_REMOVE_FIELD_EFFECT Message" << endl;
       M_HAPTICS_REMOVE_WORLD_EFFECT rmField;
       memcpy(&rmField, packet, sizeof(rmField));
-      cGenericEffect* fieldEffect = controlData.worldEffects[rmField.effectName];
-      graphicsData.world->removeEffect(fieldEffect);
-      controlData.worldEffects.erase(rmField.effectName);
+      cGenericEffect* fieldEffect = hapticsData.hapticEffectsMap[rmField.effectName];
+      controlData.world->removeEffect(fieldEffect);
+      hapticsData.hapticEffectsMap.erase(rmField.effectName);
       break;
     }
 
+
+    /////////////////////////////////////////////////
+    ////////////// GENERIC VISUAL EFFECTS ///////////
+    /////////////////////////////////////////////////
     case GRAPHICS_SET_ENABLED:
     {
       cout << "Received GRAPHICS_SET_ENABLED Message" << endl;
@@ -560,7 +732,7 @@ void parsePacket(char* packet)
       float red = bgColor.color[0]/250.0;
       float green = bgColor.color[1]/250.0;
       float blue = bgColor.color[2]/250.0;
-      graphicsData.world->setBackgroundColor(red, green, blue);
+      controlData.world->setBackgroundColor(red, green, blue);
       break;
     }
     
@@ -577,7 +749,7 @@ void parsePacket(char* packet)
       cPipe* myPipe = new cPipe(pipe.height, pipe.innerRadius, pipe.outerRadius, pipe.numSides, 
                                 pipe.numHeightSegments, position, rotation, color);
       controlData.objectMap[pipe.objectName] = myPipe->getPipeObj();
-      graphicsData.world->addChild(myPipe->getPipeObj());
+      controlData.world->addChild(myPipe->getPipeObj());
       break;
     }
 
@@ -592,7 +764,7 @@ void parsePacket(char* packet)
       cArrow* myArrow = new cArrow(arrow.aLength, arrow.shaftRadius, arrow.lengthTip, arrow.radiusTip,
                                     arrow.bidirectional, arrow.numSides, direction, position, color);
       controlData.objectMap[arrow.objectName] = myArrow->getArrowObj();
-      graphicsData.world->addChild(myArrow->getArrowObj());
+      controlData.world->addChild(myArrow->getArrowObj());
       break;
     }
     
@@ -605,6 +777,17 @@ void parsePacket(char* packet)
       obj->m_material->setColorf(color.color[0], color.color[1], color.color[2], color.color[3]);
       break;
     }
+
+    case GRAPHICS_SET_OBJECT_LOCALPOS:
+    {
+      cout << "Received GRAPHICS_SET_OBJECT_LOCALPOS Message" << endl;
+      M_GRAPHICS_SET_OBJECT_LOCALPOS msg;
+      memcpy(&msg, packet, sizeof(msg));
+      cGenericObject* obj = controlData.objectMap[msg.objectName];
+      obj->setLocalPos(msg.pos[0], msg.pos[1], msg.pos[2]);
+      break;
+    }
+
     case GRAPHICS_MOVING_DOTS:
     {
       cout << "Received GRAPHICS_MOVING_DOTS Message" << endl;
@@ -615,9 +798,9 @@ void parsePacket(char* packet)
       objectName = dots.objectName;
       cMovingDots* md = new cMovingDots(dots.numDots, dots.coherence, dots.direction, dots.magnitude);
       controlData.objectMap[objectName] = md;
-      graphicsData.movingObjects.push_back(md);
-      graphicsData.world->addChild(md->getMovingPoints());
-      graphicsData.world->addChild(md->getRandomPoints());
+      graphicsData.visualEffectsList.push_back(md);
+      controlData.world->addChild(md->getMovingPoints());
+      controlData.world->addChild(md->getRandomPoints());
       break;
     }
     case GRAPHICS_SHAPE_BOX:
@@ -629,7 +812,7 @@ void parsePacket(char* packet)
       boxObj->setLocalPos(box.localPosition[0], box.localPosition[1], box.localPosition[2]);
       boxObj->m_material->setColorf(box.color[0], box.color[1], box.color[2], box.color[3]);
       controlData.objectMap[box.objectName] = boxObj;
-      graphicsData.world->addChild(boxObj);
+      controlData.world->addChild(boxObj);
       break;
     }
     case GRAPHICS_SHAPE_SPHERE: 
@@ -641,7 +824,7 @@ void parsePacket(char* packet)
       sphereObj->setLocalPos(sphere.localPosition[0], sphere.localPosition[1], sphere.localPosition[2]);
       sphereObj->m_material->setColorf(sphere.color[0], sphere.color[1], sphere.color[2], sphere.color[3]);
       controlData.objectMap[sphere.objectName] = sphereObj;
-      graphicsData.world->addChild(sphereObj);
+      controlData.world->addChild(sphereObj);
       break;
     }
     case GRAPHICS_SHAPE_TORUS:
@@ -650,7 +833,7 @@ void parsePacket(char* packet)
       M_GRAPHICS_SHAPE_TORUS torus;
       memcpy(&torus, packet, sizeof(torus));
       cShapeTorus* torusObj = new cShapeTorus(torus.innerRadius, torus.outerRadius);
-      graphicsData.world->addChild(torusObj);
+      controlData.world->addChild(torusObj);
       torusObj->setLocalPos(0.0, 0.0, 0.0);
       torusObj->m_material->setStiffness(1.0);
       torusObj->m_material->setColorf(255.0, 255.0, 255.0, 1.0);

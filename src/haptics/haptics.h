@@ -21,6 +21,8 @@ struct HapticData
   cFrequencyCounter freqCounterHaptics;
   double toolRadius;
   double maxForce;
+  unordered_map<string, cGenericEffect*> hapticEffectsMap;
+
 };
 
 #define HAPTIC_TOOL_RADIUS 0.005
@@ -39,4 +41,7 @@ void updateHaptics(void);
 #include "cViscosityEffect.h"
 #include "cFreezeEffect.h"
 #include "cPositionForceFieldEffect.h"
+#include "cConstrainToLine.h"
+#include "cEdgeStiffness.h"
+#include "cImpulsePerturbation.h"
 #endif

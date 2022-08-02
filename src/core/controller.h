@@ -15,6 +15,7 @@
 #include "haptics/haptics.h"
 #include "graphics/graphics.h"
 #include "combined/combined.h"
+#include "network/cGenericStreamerObject.h"
 #include <fstream>
 #include "rpc/client.h"
 
@@ -31,9 +32,9 @@ struct ControlData
   bool listenerUp;
   bool streamerUp;
   bool loggingData;
-  
+  cWorld* world;
+
   // Messaging and Data Logging Variables
-  //const char* SENDER_IP;
   int MODULE_NUM;
   const char* IPADDR;
   int PORT;
@@ -42,24 +43,14 @@ struct ControlData
   int MH_PORT;
   rpc::client* client;
   
-  //const char* LISTENER_IP;
-  //int LISTENER_PORT;
-  vector<string> SENDER_IPS;
-  //int SENDER_PORT;
-  //vector<int> SENDER_PORTS;
-  //vector<int> sender_sockets;
-  //int listener_socket;
   cThread* streamerThread; // for streaming haptic data only
-  cThread* listenerThread;
+  cThread* listenerThread; // for listening to messageHandler messages
   ofstream dataFile;
 
-  // TODO: Make the hapticsOnly = true mode actually work
-  bool hapticsOnly;
-  
-  //Object Tracking
+  //a map to keep a track of all objects
   unordered_map<string, cGenericObject*> objectMap;
-  unordered_map<string, vector<string>> objectEffects; // rsr. this one does not seem to be used
-  unordered_map<string, cGenericEffect*> worldEffects;
+  //a list to track objects that need to transmit data. Include an object (e.g. a cuptask object) in this list if it needs to send out data
+  vector<cGenericStreamerObject*> dataStreamersList;
 };
 
 bool allThreadsDown(void);

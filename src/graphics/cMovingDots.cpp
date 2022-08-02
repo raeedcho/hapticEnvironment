@@ -13,7 +13,7 @@
  * be the "movingDots", or dots that move in the direction specified. The remainder of the points
  * <em> (n-(c*n)) </em> are dots that move in random directions.
  */
-cMovingDots::cMovingDots(int n, double c, double d, double m) : cGenericMovingObject()
+cMovingDots::cMovingDots(int n, double c, double d, double m) : cGenericVisualEffect()
 {
   generator.seed(time(0));
   uniform_real_distribution<double> distribution(-1.0, 1.0);

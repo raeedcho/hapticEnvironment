@@ -4,7 +4,8 @@
 #include "network/network.h"
 #include "haptics/haptics.h"
 #include "graphics/graphics.h"
-#include "graphics/cGenericMovingObject.h"
+#include "graphics/cGenericVisualEffect.h"
+#include "network/cGenericStreamerObject.h"
 
 using namespace chai3d;
 using namespace std;
@@ -27,11 +28,12 @@ using namespace std;
  * is the degree of instability of the system.
  * 
  */
-class cCST: public cGenericMovingObject, public cGenericEffect
+class cCST: public cGenericVisualEffect, public cGenericEffect, public cGenericStreamerObject
 {
   private: 
     double lambda;
-    double forceMagnitude;
+    double hapticStiffness;
+    double reactionForce;
     bool visionEnabled;
     bool hapticEnabled;
     bool running;
@@ -41,7 +43,7 @@ class cCST: public cGenericMovingObject, public cGenericEffect
     cVector3d* computeNextPosition(cVector3d toolPos);
     cPrecisionClock* cstClock;
     double lastUpdateTime;
-    //ControlData controlData;
+
 
   public:
     cCST(cWorld* worldPtr, double l, double f, bool v, bool h);
@@ -54,4 +56,5 @@ class cCST: public cGenericMovingObject, public cGenericEffect
     void startCST();
     void stopCST();
     void destructCST();
+    void sendData();
 };

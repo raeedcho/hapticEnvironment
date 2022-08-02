@@ -24,4 +24,5 @@ int subscribeToTrialControl();
 int openMessagingSocket();
 void closeMessagingSocket();
 int readPacket(char* packet);
+MSG_HEADER createMesssageHeader(int msg_type);
 #endif

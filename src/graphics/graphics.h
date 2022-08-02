@@ -11,7 +11,7 @@
 // ------------------------------------------------------
 // -------------Custom Graphics Functionality------------
 // ------------------------------------------------------
-#include "cGenericMovingObject.h"
+#include "cGenericVisualEffect.h"
 #include "cMovingDots.h"
 #include "cPipe.h"
 #include "cArrow.h"
@@ -23,10 +23,9 @@ struct GraphicsData {
   cStereoMode stereoMode;
   bool fullscreen;
   bool mirroredDisplay;
-  cWorld* world; // TODO: Move this to controller.cpp
   cCamera* camera;
   cDirectionalLight* light;
-  cDirectionalLight* light2;
+  cDirectionalLight* light2; //A secondary light if needed
   GLFWwindow* window;
   int width;
   int height;
@@ -36,10 +35,10 @@ struct GraphicsData {
   cShapeTorus* object;
   cFrequencyCounter freqCounterGraphics;
   clock_t graphicsClock;
-  vector<cGenericMovingObject*> movingObjects;
+  vector<cGenericVisualEffect*> visualEffectsList;
   cLabel* debuggerLable; //rsr. added for debugging
-  bool debuggerEnabled = true;
   unordered_map<string, double> debuggerContent;
+  bool debuggerEnabled = true;
 };
 
 void initDisplay(void);
@@ -48,6 +47,6 @@ void errorCallback(int error, const char* errorDescription);
 void resizeWindowCallback(GLFWwindow* window, int w, int h);
 void keySelectCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void updateGraphics(void);
-void startGraphicsLoop(void); //rsr to make the main function prettier
+void startGraphicsLoop(void);
 
 #endif

@@ -88,26 +88,26 @@ void initDisplay(void)
 void initScene(void)
 {
   cout << "Initializing the scene" << endl;
-  graphicsData.world = new cWorld();
-  graphicsData.world->m_backgroundColor.setBlack();
-  graphicsData.camera = new cCamera(graphicsData.world);
-  graphicsData.world->addChild(graphicsData.camera);
+  // controlData.world = new cWorld(); rsr. Moved to control.cpp
+  controlData.world->m_backgroundColor.setBlack();
+  graphicsData.camera = new cCamera(controlData.world);
+  controlData.world->addChild(graphicsData.camera);
   graphicsData.camera->set(cVector3d(1.0, 0.0, 0.0), // camera position
-                       cVector3d(0.0, 0.0, 0.0), // point to look at
-                       cVector3d(0.0, 0.0, 1.0)); // the "up" vector
+                           cVector3d(0.0, 0.0, 0.0), // point to look at
+                           cVector3d(0.0, 0.0, 1.0)); // the "up" vector
   graphicsData.camera->setMirrorVertical(graphicsData.mirroredDisplay);
   graphicsData.camera->setMirrorHorizontal(graphicsData.mirroredDisplay);  
-  graphicsData.camera->setOrthographicView(1); // width of the viewd scene, in meters
+  graphicsData.camera->setOrthographicView(1); // 1=width of the viewd scene, in meters
 
-  graphicsData.light = new cDirectionalLight(graphicsData.world);
+  graphicsData.light = new cDirectionalLight(controlData.world);
   graphicsData.light->setEnabled(true);
-  graphicsData.light->setDir(-1.0, 0.0, 0.1);
+  graphicsData.light->setDir(-1.0, 0.0, -1.0);
   graphicsData.camera->addChild(graphicsData.light); 
 
-  // graphicsData.light2 = new cDirectionalLight(graphicsData.world);
-  // graphicsData.light2->setEnabled(true);
-  // graphicsData.light2->setDir(-1.0, 0.0, -1.0);
-  // graphicsData.camera->addChild(graphicsData.light2); 
+  graphicsData.light2 = new cDirectionalLight(controlData.world);
+  graphicsData.light2->setEnabled(true);
+  graphicsData.light2->setDir(-1.0, 0.0, 1.0);
+  graphicsData.camera->addChild(graphicsData.light2); 
 
   //rsr. added for debugging
   graphicsData.debuggerLable = new cLabel(NEW_CFONTCALIBRI20()); 
@@ -158,8 +158,7 @@ void keySelectCallback(GLFWwindow* window, int key, int scancode, int action, in
   }
 
   switch (key){
-    case GLFW_KEY_ESCAPE:
-    case GLFW_KEY_Q:{
+    case GLFW_KEY_ESCAPE:{
       glfwSetWindowShouldClose(window, GLFW_TRUE);
       break;
     }
@@ -192,19 +191,11 @@ void keySelectCallback(GLFWwindow* window, int key, int scancode, int action, in
       break;
     }
 
-    case GLFW_KEY_1:{
+    case GLFW_KEY_Q:{
       M_CST_CREATE msg;
       memset(&msg, 0, sizeof(msg));
-      auto packetIdx = controlData.client->async_call("getMsgNum");
-      auto timestamp = controlData.client->async_call("getTimestamp");
-      packetIdx.wait();
-      timestamp.wait();
-      int packetNum = packetIdx.get().as<int>();
-      double currTime = timestamp.get().as<double>();
-      msg.header.serial_no = packetNum;
-      msg.header.msg_type = CST_CREATE;
-      msg.header.timestamp = currTime;
-      msg.cstName[0] = 'c';
+      msg.header = createMesssageHeader(CST_CREATE);
+      strcpy(msg.cstName, "cst");
       msg.hapticEnabled = true;
       msg.lambdaVal = 1;
       msg.visionEnabled = true;
@@ -219,19 +210,80 @@ void keySelectCallback(GLFWwindow* window, int key, int scancode, int action, in
       break;    
     }
 
-    case GLFW_KEY_2:{
+    // the following key stroke are for quick and dirty testing of the features. 
+    // To be deleted by Raeed.
+
+    case GLFW_KEY_W:{
       M_CST_START msg;
       memset(&msg, 0, sizeof(msg));
-      auto packetIdx = controlData.client->async_call("getMsgNum");
-      auto timestamp = controlData.client->async_call("getTimestamp");
-      packetIdx.wait();
-      timestamp.wait();
-      int packetNum = packetIdx.get().as<int>();
-      double currTime = timestamp.get().as<double>();
-      msg.header.serial_no = packetNum;
-      msg.header.msg_type = CST_START;
-      msg.header.timestamp = currTime;
-      msg.cstName[0] = 'c';
+      msg.header = createMesssageHeader(CST_START);
+      strcpy(msg.cstName, "cst");
+
+      char packet[sizeof(msg)];
+      memcpy(&packet, &msg, sizeof(msg));
+      vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
+      auto result = controlData.client->async_call("sendMessage", packetData, sizeof(msg), controlData.MODULE_NUM);    
+      usleep(1000);
+      result.wait();  
+      break;    
+    }
+    
+    case GLFW_KEY_E:{
+      M_CST_STOP msg;
+      memset(&msg, 0, sizeof(msg));
+      msg.header = createMesssageHeader(CST_STOP);
+      strcpy(msg.cstName, "cst");
+
+      char packet[sizeof(msg)];
+      memcpy(&packet, &msg, sizeof(msg));
+      vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
+      auto result = controlData.client->async_call("sendMessage", packetData, sizeof(msg), controlData.MODULE_NUM);    
+      usleep(1000);
+      result.wait();  
+      break;    
+    }
+
+    case GLFW_KEY_R:{
+      M_CST_DESTRUCT msg;
+      memset(&msg, 0, sizeof(msg));
+      msg.header = createMesssageHeader(CST_DESTRUCT);
+      strcpy(msg.cstName, "cst");
+
+      char packet[sizeof(msg)];
+      memcpy(&packet, &msg, sizeof(msg));
+      vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
+      auto result = controlData.client->async_call("sendMessage", packetData, sizeof(msg), controlData.MODULE_NUM);    
+      usleep(1000);
+      result.wait();  
+      break;    
+    }
+    
+    case GLFW_KEY_1:{
+      M_CUPTASK_CREATE msg1;
+      memset(&msg1, 0, sizeof(msg1));
+      msg1.header = createMesssageHeader(CUPTASK_CREATE);
+      strcpy(msg1.cupTaskName, "cupAndBall");
+      msg1.escapeAngle = 45; //in degress
+      msg1.pendulumLength = 0.080;
+      msg1.ballMass = 0.3;
+      msg1.cartMass = 0.0;
+      msg1.cupDamping = 1;
+      msg1.ballDamping = 0;
+
+      char packet[sizeof(msg1)];
+      memcpy(&packet, &msg1, sizeof(msg1));
+      vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
+      auto result = controlData.client->async_call("sendMessage", packetData, sizeof(msg1), controlData.MODULE_NUM);    
+      usleep(1000);
+      result.wait();  
+      break;    
+    }
+
+    case GLFW_KEY_2:{
+      M_CUPTASK_START msg;
+      memset(&msg, 0, sizeof(msg));
+      msg.header = createMesssageHeader(CUPTASK_START);
+      strcpy(msg.cupTaskName, "cupAndBall");
 
       char packet[sizeof(msg)];
       memcpy(&packet, &msg, sizeof(msg));
@@ -243,18 +295,9 @@ void keySelectCallback(GLFWwindow* window, int key, int scancode, int action, in
     }
     
     case GLFW_KEY_3:{
-      M_CST_STOP msg;
-      memset(&msg, 0, sizeof(msg));
-      auto packetIdx = controlData.client->async_call("getMsgNum");
-      auto timestamp = controlData.client->async_call("getTimestamp");
-      packetIdx.wait();
-      timestamp.wait();
-      int packetNum = packetIdx.get().as<int>();
-      double currTime = timestamp.get().as<double>();
-      msg.header.serial_no = packetNum;
-      msg.header.msg_type = CST_STOP;
-      msg.header.timestamp = currTime;
-      msg.cstName[0] = 'c';
+      M_CUPTASK_STOP msg;
+      msg.header = createMesssageHeader(CUPTASK_STOP);
+      strcpy(msg.cupTaskName, "cupAndBall");
 
       char packet[sizeof(msg)];
       memcpy(&packet, &msg, sizeof(msg));
@@ -266,18 +309,10 @@ void keySelectCallback(GLFWwindow* window, int key, int scancode, int action, in
     }
 
     case GLFW_KEY_4:{
-      M_CST_DESTRUCT msg;
+      M_CUPTASK_DESTRUCT msg;
       memset(&msg, 0, sizeof(msg));
-      auto packetIdx = controlData.client->async_call("getMsgNum");
-      auto timestamp = controlData.client->async_call("getTimestamp");
-      packetIdx.wait();
-      timestamp.wait();
-      int packetNum = packetIdx.get().as<int>();
-      double currTime = timestamp.get().as<double>();
-      msg.header.serial_no = packetNum;
-      msg.header.msg_type = CST_DESTRUCT;
-      msg.header.timestamp = currTime;
-      msg.cstName[0] = 'c';
+      msg.header = createMesssageHeader(CUPTASK_DESTRUCT);
+      strcpy(msg.cupTaskName, "cupAndBall");
 
       char packet[sizeof(msg)];
       memcpy(&packet, &msg, sizeof(msg));
@@ -287,24 +322,13 @@ void keySelectCallback(GLFWwindow* window, int key, int scancode, int action, in
       result.wait();  
       break;    
     }
-    
+
     case GLFW_KEY_5:{
-      M_CUPS_CREATE msg;
+      M_CUPTASK_SET_BALL_VISUALS msg;
       memset(&msg, 0, sizeof(msg));
-      auto packetIdx = controlData.client->async_call("getMsgNum");
-      auto timestamp = controlData.client->async_call("getTimestamp");
-      packetIdx.wait();
-      timestamp.wait();
-      int packetNum = packetIdx.get().as<int>();
-      double currTime = timestamp.get().as<double>();
-      msg.header.serial_no = packetNum;
-      msg.header.msg_type = CUPS_CREATE;
-      msg.header.timestamp = currTime;
-      msg.cupsName[0] = 'c';
-      msg.escapeAngle = 45; //in degress
-      msg.pendulumLength = 0.080;
-      msg.ballMass = 0.3;
-      msg.cartMass = 0.3;
+      msg.header = createMesssageHeader(CUPTASK_SET_BALL_VISUALS);
+      strcpy(msg.cupTaskName, "cupAndBall");
+      msg.visualEnalbed = false;
 
       char packet[sizeof(msg)];
       memcpy(&packet, &msg, sizeof(msg));
@@ -314,20 +338,14 @@ void keySelectCallback(GLFWwindow* window, int key, int scancode, int action, in
       result.wait();  
       break;    
     }
+
 
     case GLFW_KEY_6:{
-      M_CUPS_START msg;
+      M_CUPTASK_SET_BALL_HAPTICS msg;
       memset(&msg, 0, sizeof(msg));
-      auto packetIdx = controlData.client->async_call("getMsgNum");
-      auto timestamp = controlData.client->async_call("getTimestamp");
-      packetIdx.wait();
-      timestamp.wait();
-      int packetNum = packetIdx.get().as<int>();
-      double currTime = timestamp.get().as<double>();
-      msg.header.serial_no = packetNum;
-      msg.header.msg_type = CUPS_START;
-      msg.header.timestamp = currTime;
-      msg.cupsName[0] = 'c';
+      msg.header = createMesssageHeader(CUPTASK_SET_BALL_HAPTICS);
+      strcpy(msg.cupTaskName, "cupAndBall");
+      msg.hapticEnabled = false;
 
       char packet[sizeof(msg)];
       memcpy(&packet, &msg, sizeof(msg));
@@ -337,20 +355,13 @@ void keySelectCallback(GLFWwindow* window, int key, int scancode, int action, in
       result.wait();  
       break;    
     }
-    
+
     case GLFW_KEY_7:{
-      M_CUPS_STOP msg;
+      M_CUPTASK_SET_CUP_VISUALS msg;
       memset(&msg, 0, sizeof(msg));
-      auto packetIdx = controlData.client->async_call("getMsgNum");
-      auto timestamp = controlData.client->async_call("getTimestamp");
-      packetIdx.wait();
-      timestamp.wait();
-      int packetNum = packetIdx.get().as<int>();
-      double currTime = timestamp.get().as<double>();
-      msg.header.serial_no = packetNum;
-      msg.header.msg_type = CUPS_STOP;
-      msg.header.timestamp = currTime;
-      msg.cupsName[0] = 'c';
+      msg.header = createMesssageHeader(CUPTASK_SET_CUP_VISUALS);
+      strcpy(msg.cupTaskName, "cupAndBall");
+      msg.visualEnalbed = false;
 
       char packet[sizeof(msg)];
       memcpy(&packet, &msg, sizeof(msg));
@@ -362,18 +373,11 @@ void keySelectCallback(GLFWwindow* window, int key, int scancode, int action, in
     }
 
     case GLFW_KEY_8:{
-      M_CUPS_DESTRUCT msg;
+      M_CUPTASK_SET_PATH_CONSTRAINT msg;
       memset(&msg, 0, sizeof(msg));
-      auto packetIdx = controlData.client->async_call("getMsgNum");
-      auto timestamp = controlData.client->async_call("getTimestamp");
-      packetIdx.wait();
-      timestamp.wait();
-      int packetNum = packetIdx.get().as<int>();
-      double currTime = timestamp.get().as<double>();
-      msg.header.serial_no = packetNum;
-      msg.header.msg_type = CUPS_DESTRUCT;
-      msg.header.timestamp = currTime;
-      msg.cupsName[0] = 'c';
+      msg.header = createMesssageHeader(CUPTASK_SET_PATH_CONSTRAINT);
+      strcpy(msg.cupTaskName, "cupAndBall");
+      msg.pathConstraintEnabled = false;
 
       char packet[sizeof(msg)];
       memcpy(&packet, &msg, sizeof(msg));
@@ -384,6 +388,126 @@ void keySelectCallback(GLFWwindow* window, int key, int scancode, int action, in
       break;    
     }
 
+    case GLFW_KEY_9:{
+      M_GRAPHICS_SHAPE_BOX msg;
+      memset(&msg, 0, sizeof(msg));
+      msg.header = createMesssageHeader(GRAPHICS_SHAPE_BOX);
+      strcpy(msg.objectName, "startBox");
+      msg.color[0] = 1;
+      msg.color[1] = 0;
+      msg.color[2] = 0;
+      msg.color[3] = 1;
+      msg.localPosition[0] = -0.2;
+      msg.localPosition[1] = -0.15;
+      msg.localPosition[2] = -0.04;
+      msg.sizeX = 0.01;
+      msg.sizeY = 0.1;
+      msg.sizeZ = 0.05;
+
+      char packet[sizeof(msg)];
+      memcpy(&packet, &msg, sizeof(msg));
+      vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
+      auto result = controlData.client->async_call("sendMessage", packetData, sizeof(msg), controlData.MODULE_NUM);    
+      usleep(1000);
+      result.wait();  
+
+      ////////////// another box
+      memset(&msg, 0, sizeof(msg));
+      msg.header = createMesssageHeader(GRAPHICS_SHAPE_BOX);
+      strcpy(msg.objectName, "targetBox");
+      msg.color[0] = 0;
+      msg.color[1] = 0;
+      msg.color[2] = 1;
+      msg.color[3] = 1;
+      msg.localPosition[0] = -0.2;
+      msg.localPosition[1] = 0.15;
+      msg.localPosition[2] = -0.04;
+      msg.sizeX = 0.01;
+      msg.sizeY = 0.1;
+      msg.sizeZ = 0.05;
+      char packet2[sizeof(msg)];
+      memcpy(&packet2, &msg, sizeof(msg));
+      vector<char> packetData2(packet2, packet2+sizeof(packet2) / sizeof(char));
+      auto result2 = controlData.client->async_call("sendMessage", packetData2, sizeof(msg), controlData.MODULE_NUM);    
+      usleep(1000);
+      result2.wait(); 
+
+      break;    
+    }    
+
+case GLFW_KEY_0:{
+      M_HAPTICS_LINE_CONSTRAINT msg;
+      memset(&msg, 0, sizeof(msg));
+      msg.header = createMesssageHeader(HAPTICS_LINE_CONSTRAINT);
+      strcpy(msg.effectName, "lineConstraint");
+      msg.point1[0] = -0.1;
+      msg.point1[1] =    0;
+      msg.point1[2] =    0;
+      msg.point2[0] = -0.1;
+      msg.point2[1] =    1;
+      msg.point2[2] =    0;
+      msg.stifness = 1000;
+      msg.damping = 25;
+
+      char packet[sizeof(msg)];
+      memcpy(&packet, &msg, sizeof(msg));
+      vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
+      auto result = controlData.client->async_call("sendMessage", packetData, sizeof(msg), controlData.MODULE_NUM);    
+      usleep(1000);
+      result.wait();  
+
+      break;    
+    }    
+
+case GLFW_KEY_B:{
+      M_HAPTICS_EDGE_STIFFNESS msg;
+      memset(&msg, 0, sizeof(msg));
+      msg.header = createMesssageHeader(HAPTICS_EDGE_STIFFNESS);
+      strcpy(msg.effectName, "edgeStiffness");
+      msg.width = 0.2;
+      msg.height = 0.2;
+      msg.depth = 0.10;
+      msg.center[0] = -0.1;
+      msg.center[1] = 0;
+      msg.center[2] = 0;
+      msg.stifness = 300;
+      msg.damping = 20;
+
+      char packet[sizeof(msg)];
+      memcpy(&packet, &msg, sizeof(msg));
+      vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
+      auto result = controlData.client->async_call("sendMessage", packetData, sizeof(msg), controlData.MODULE_NUM);    
+      usleep(1000);
+      result.wait();  
+
+      break;    
+    }    
+
+case GLFW_KEY_P:{
+      M_HAPTICS_IMPULSE_PERT msg;
+      memset(&msg, 0, sizeof(msg));
+      msg.header = createMesssageHeader(HAPTICS_IMPULSE_PERT);
+      strcpy(msg.effectName, "pert");
+      msg.forceVector[0] = 0;
+      msg.forceVector[1] = -20;
+      msg.forceVector[2] = 0;
+      msg.impulseDuration = 0.020;
+      msg.normalToPlane[0] =  0;
+      msg.normalToPlane[1] = -1;
+      msg.normalToPlane[2] =  0;
+      msg.pointOnPlane[0] = 0;
+      msg.pointOnPlane[1] = 0.05;
+      msg.pointOnPlane[2] = 0;
+
+      char packet[sizeof(msg)];
+      memcpy(&packet, &msg, sizeof(msg));
+      vector<char> packetData(packet, packet+sizeof(packet) / sizeof(char));
+      auto result = controlData.client->async_call("sendMessage", packetData, sizeof(msg), controlData.MODULE_NUM);    
+      usleep(1000);
+      result.wait();  
+
+      break;    
+    }  
 
     default:{
       const char* key_name;
@@ -423,15 +547,15 @@ void keySelectCallback(GLFWwindow* window, int key, int scancode, int action, in
  */
 void updateGraphics(void)
 {
-  graphicsData.world->updateShadowMaps(false, graphicsData.mirroredDisplay);
+  controlData.world->updateShadowMaps(false, graphicsData.mirroredDisplay);
   graphicsData.camera->renderView(graphicsData.width, graphicsData.height);
-  for(vector<cGenericMovingObject*>::iterator it = graphicsData.movingObjects.begin(); it != graphicsData.movingObjects.end(); it++)
+  for(vector<cGenericVisualEffect*>::iterator it = graphicsData.visualEffectsList.begin(); it != graphicsData.visualEffectsList.end(); it++)
   {
     double dt = (clock() - graphicsData.graphicsClock)/double(CLOCKS_PER_SEC);
     graphicsData.graphicsClock = clock();
     (*it)->graphicsLoopFunction(dt, hapticsData.tool->getDeviceGlobalPos(), hapticsData.tool->getDeviceGlobalLinVel());
   }
-  // rsr. added for debugging: Todo: 
+  // rsr. added for debugging
   if (graphicsData.debuggerEnabled){
     string str ="";
     for(auto thisItem : graphicsData.debuggerContent){
@@ -451,12 +575,14 @@ void updateGraphics(void)
 }
 
 /**
- * RSR. Function starts the main indefinite loop that the program relies on.  
+ * This function starts an indefinite loop that the program relies on.
+ * When the GLF window is destructed, the program terminates.
  *
  * @brief an indefinite loop to update graphics
  * 
  */
-void startGraphicsLoop(void){
+void startGraphicsLoop(void)
+{
   cout << "Starting the graphics loop" << endl;
   while (!glfwWindowShouldClose(graphicsData.window)) {
     glfwGetWindowSize(graphicsData.window, &graphicsData.width, &graphicsData.height);
